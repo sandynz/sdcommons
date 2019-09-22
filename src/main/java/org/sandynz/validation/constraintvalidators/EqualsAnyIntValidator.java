@@ -20,35 +20,35 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import org.sandynz.validation.constraints.EqualsAnyBigint;
+import org.sandynz.validation.constraints.EqualsAnyInt;
 
 /**
- * Validate the object equals to any of specified bigint.
+ * Validate the object equals to any of specified int.
  *
  * @author sandynz
  */
-public class EqualsAnyBigintValidator implements ConstraintValidator<EqualsAnyBigint, Long> {
+public class EqualsAnyIntValidator implements ConstraintValidator<EqualsAnyInt, Integer> {
 
-    public EqualsAnyBigintValidator() {
+    public EqualsAnyIntValidator() {
     }
 
-    private Set<Long> valueSet;
+    private Set<Integer> valueSet;
 
     @Override
-    public void initialize(EqualsAnyBigint constraintAnnotation) {
-        long[] valueArr = constraintAnnotation.value();
+    public void initialize(EqualsAnyInt constraintAnnotation) {
+        int[] valueArr = constraintAnnotation.value();
         if (valueArr.length == 0) {
             valueSet = null;
         } else {
             valueSet = new HashSet<>(valueArr.length * 4 / 3 + 1);
-            for (long value : valueArr) {
+            for (int value : valueArr) {
                 valueSet.add(value);
             }
         }
     }
 
     @Override
-    public boolean isValid(Long object, ConstraintValidatorContext constraintContext) {
+    public boolean isValid(Integer object, ConstraintValidatorContext constraintContext) {
         if (object == null) {
             return true;
         }

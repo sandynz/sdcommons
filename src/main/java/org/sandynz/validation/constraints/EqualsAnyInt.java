@@ -27,25 +27,25 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
-import org.sandynz.validation.constraintvalidators.EqualsAnyStringValidator;
+import org.sandynz.validation.constraintvalidators.EqualsAnyIntValidator;
 
 /**
- * The annotated element must equals to one of the specified bigint.
+ * The annotated element must equals to one of the specified int.
  *
  * @author sandynz
  */
 @Target({FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER}) //TYPE_USE, METHOD,
 @Retention(RUNTIME)
-@Constraint(validatedBy = {EqualsAnyStringValidator.class})
+@Constraint(validatedBy = {EqualsAnyIntValidator.class})
 @Documented
-public @interface EqualsAnyBigint {
+public @interface EqualsAnyInt {
 
-    String message() default "Equals none of bigint";
+    String message() default "Equals none of int";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
 
-    long[] value() default {};
+    int[] value() default {};
 
 }
