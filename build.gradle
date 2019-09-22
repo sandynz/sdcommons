@@ -1,7 +1,15 @@
+buildscript {
+    dependencies {
+        classpath "io.franzbecker:gradle-lombok:1.14"
+    }
+}
+
 plugins {
     id 'idea'
     id 'java'
 }
+
+apply plugin: "io.franzbecker.gradle-lombok"
 
 idea {
     module {
@@ -19,12 +27,30 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    // validation
-    compileOnly "javax.el:javax.el-api:3.0.0"
-    compileOnly "org.glassfish:javax.el:3.0.0"
-    compileOnly "javax.validation:validation-api:2.0.1.Final"
-    compileOnly "org.hibernate:hibernate-validator:6.0.17.Final"
+ext {
+    slf4jVersion = '1.7.28'
+    elApiVersion = '3.0.0'
+    javaxElVersion = '3.0.0'
+    validationApiVersion = '2.0.1.Final'
+    hibernateValidatorVersion = '6.0.17.Final'
+}
 
+dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
+    testCompile group: 'com.alibaba', name: 'fastjson', version: '1.2.60'
+
+    compile group: 'org.slf4j', name: 'slf4j-api', version: "${slf4jVersion}"
+    testCompile group: 'org.slf4j', name: 'slf4j-simple', version: "${slf4jVersion}"
+
+    // validation
+    compileOnly "javax.el:javax.el-api:${elApiVersion}"
+    compileOnly "org.glassfish:javax.el:${javaxElVersion}"
+    compileOnly "javax.validation:validation-api:${validationApiVersion}"
+    compileOnly "org.hibernate:hibernate-validator:${hibernateValidatorVersion}"
+    testCompile "javax.el:javax.el-api:${elApiVersion}"
+    testCompile "org.glassfish:javax.el:${javaxElVersion}"
+    testCompile "javax.validation:validation-api:${validationApiVersion}"
+    testCompile "org.hibernate:hibernate-validator:${hibernateValidatorVersion}"
+
 }
