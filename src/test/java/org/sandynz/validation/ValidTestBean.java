@@ -44,7 +44,10 @@ class ValidTestBean {
     @EqualsAnyString(value = {"Male", "Female"}, message = "Must be one of Male / Female")
     private String sex;
 
+    @CnIdCardNo
+    private String cnIdCardNo1;
+
     @CnIdCardNo(minAge = 18, maxAge = 65)
-    private String cnIdCardNo;
+    private String cnIdCardNo2;
 
 }

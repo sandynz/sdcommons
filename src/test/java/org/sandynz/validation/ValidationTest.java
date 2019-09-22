@@ -91,10 +91,21 @@ public class ValidationTest {
     }
 
     @Test
-    public void testCnIdCardNo() {
+    public void testCnIdCardNo1() {
         List<Pair<ValidTestBean, Boolean>> paramResultPairList = Arrays.asList(
-                Pair.of(new ValidTestBean().setCnIdCardNo("53010219200508011x"), false),
-                Pair.of(new ValidTestBean().setCnIdCardNo("530102199005080111"), true)
+                Pair.of(new ValidTestBean().setCnIdCardNo1("530102192005080110"), false),
+                Pair.of(new ValidTestBean().setCnIdCardNo1("530102199005080110"), false),
+                Pair.of(new ValidTestBean().setCnIdCardNo1("53010219200508011x"), true),
+                Pair.of(new ValidTestBean().setCnIdCardNo1("530102199005080111"), true)
+        );
+        test0(paramResultPairList);
+    }
+
+    @Test
+    public void testCnIdCardNo2() {
+        List<Pair<ValidTestBean, Boolean>> paramResultPairList = Arrays.asList(
+                Pair.of(new ValidTestBean().setCnIdCardNo2("53010219200508011x"), false),
+                Pair.of(new ValidTestBean().setCnIdCardNo2("530102199005080111"), true)
         );
         test0(paramResultPairList);
     }
