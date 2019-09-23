@@ -5,4 +5,4 @@
  * <br>compile "javax.validation:validation-api:2.0.1.Final"
  * <br>compile "org.hibernate:hibernate-validator:6.0.17.Final"
  */
-package org.sandynz.validation;
+package org.sandynz.sdcommons.validation;

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.validation.constraints.hibernate;
+package org.sandynz.sdcommons.validation.constraints;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
@@ -30,40 +30,34 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
-import javax.validation.ReportAsSingleViolation;
-import org.hibernate.validator.constraints.CompositionType;
-import org.hibernate.validator.constraints.ConstraintComposition;
-import org.sandynz.validation.constraints.LooseCnMobile;
-import org.sandynz.validation.constraints.LooseCnTel;
+import org.sandynz.sdcommons.validation.constraintvalidators.EqualsAnyIntValidator;
 
 /**
- * 手机号码或电话号码格式校验注解
+ * The annotated element must equals to one of the specified int.
  *
  * @author sandynz
  */
-@ConstraintComposition(CompositionType.OR)
-@LooseCnMobile
-@LooseCnTel
-@ReportAsSingleViolation
-@Constraint(validatedBy = {})
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
+@Constraint(validatedBy = {EqualsAnyIntValidator.class})
 @Documented
-@Repeatable(LooseCnMobileOrTel.List.class)
-public @interface LooseCnMobileOrTel {
+@Repeatable(EqualsAnyInt.List.class)
+public @interface EqualsAnyInt {
 
-    String message() default "Invalid cn mobile or tel";
+    String message() default "Equals none of int";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
+
+    int[] value() default {};
 
     @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
     @Retention(RUNTIME)
     @Documented
     @interface List {
 
-        LooseCnMobileOrTel[] value();
+        EqualsAnyInt[] value();
     }
 
 }

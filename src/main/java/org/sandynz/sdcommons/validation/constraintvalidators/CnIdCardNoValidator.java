@@ -14,23 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.validation.constraintvalidators;
+package org.sandynz.sdcommons.validation.constraintvalidators;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import lombok.extern.slf4j.Slf4j;
-import org.sandynz.validation.constraints.CnIdCardNo;
-import org.sandynz.validation.constraints.EqualsAnyString;
-import org.sandynz.validation.util.CnIdCardNoBean;
-import org.sandynz.validation.util.CnIdCardNoUtils;
+import org.sandynz.sdcommons.validation.constraints.CnIdCardNo;
+import org.sandynz.sdcommons.validation.util.CnIdCardNoBean;
+import org.sandynz.sdcommons.validation.util.CnIdCardNoUtils;
 
 /**
  * 中国居民身份证号码校验器

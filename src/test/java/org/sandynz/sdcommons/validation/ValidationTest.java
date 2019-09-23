@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.validation;
+package org.sandynz.sdcommons.validation;
 
 import com.alibaba.fastjson.JSON;
 import java.util.Arrays;

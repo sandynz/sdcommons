@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.validation.constraints;
+package org.sandynz.sdcommons.validation.constraints;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
@@ -30,44 +30,33 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
-import org.sandynz.validation.constraintvalidators.CnIdCardNoValidator;
+import javax.validation.constraints.Pattern;
 
 /**
- * 中国居民身份证号码校验注解
+ * 电话号码格式校验注解
  *
  * @author sandynz
  */
+@Pattern(regexp = "^0[1-9][0-9]{1,2}-[1-9][0-9]{7}$", message = "电话号码格式错误")
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = {CnIdCardNoValidator.class})
+@Constraint(validatedBy = {})
 @Documented
-@Repeatable(CnIdCardNo.List.class)
-public @interface CnIdCardNo {
+@Repeatable(LooseCnTel.List.class)
+public @interface LooseCnTel {
 
-    String message() default "身份证号码格式错误";
+    String message() default "Invalid cn tel";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
-
-    /**
-     * 最小允许年龄（周岁），包含。
-     * 默认值0，相当于不校验。
-     */
-    int minAge() default 0;
-
-    /**
-     * 最大允许年龄（周岁），包含。
-     * 默认值{@link Integer#MAX_VALUE}，相当于不校验。
-     */
-    int maxAge() default Integer.MAX_VALUE;
 
     @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
     @Retention(RUNTIME)
     @Documented
     @interface List {
 
-        CnIdCardNo[] value();
+        LooseCnTel[] value();
     }
 
 }

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.validation.constraints;
+package org.sandynz.sdcommons.validation.constraints;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
@@ -30,7 +30,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
-import org.sandynz.validation.constraintvalidators.EqualsAnyStringValidator;
+import org.sandynz.sdcommons.validation.constraintvalidators.EqualsAnyStringValidator;
 
 /**
  * The annotated element must equals to one of the specified string.

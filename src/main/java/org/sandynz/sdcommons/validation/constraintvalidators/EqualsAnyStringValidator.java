@@ -14,41 +14,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.validation.constraintvalidators;
+package org.sandynz.sdcommons.validation.constraintvalidators;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import org.sandynz.validation.constraints.EqualsAnyInt;
+import org.sandynz.sdcommons.validation.constraints.EqualsAnyString;
 
 /**
- * Validate the object equals to any of specified int.
+ * Validate the object equals to any of specified string.
  *
  * @author sandynz
  */
-public class EqualsAnyIntValidator implements ConstraintValidator<EqualsAnyInt, Integer> {
+public class EqualsAnyStringValidator implements ConstraintValidator<EqualsAnyString, String> {
 
-    public EqualsAnyIntValidator() {
+    public EqualsAnyStringValidator() {
     }
 
-    private Set<Integer> valueSet;
+    private Set<String> valueSet;
 
     @Override
-    public void initialize(EqualsAnyInt constraintAnnotation) {
-        int[] valueArr = constraintAnnotation.value();
+    public void initialize(EqualsAnyString constraintAnnotation) {
+        String[] valueArr = constraintAnnotation.value();
         if (valueArr.length == 0) {
             valueSet = null;
         } else {
             valueSet = new HashSet<>(valueArr.length * 4 / 3 + 1);
-            for (int value : valueArr) {
-                valueSet.add(value);
-            }
+            valueSet.addAll(Arrays.asList(valueArr));
         }
     }
 
     @Override
-    public boolean isValid(Integer object, ConstraintValidatorContext constraintContext) {
+    public boolean isValid(String object, ConstraintValidatorContext constraintContext) {
         if (object == null) {
             return true;
         }

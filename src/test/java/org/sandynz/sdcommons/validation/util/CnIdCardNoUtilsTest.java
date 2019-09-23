@@ -1,4 +1,4 @@
-package org.sandynz.validation.util;
+package org.sandynz.sdcommons.validation.util;
 
 import org.junit.Assert;
 import org.junit.Test;
