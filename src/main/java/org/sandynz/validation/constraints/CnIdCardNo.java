@@ -19,10 +19,13 @@ package org.sandynz.validation.constraints;
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
 import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Documented;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import javax.validation.Constraint;
@@ -34,10 +37,11 @@ import org.sandynz.validation.constraintvalidators.CnIdCardNoValidator;
  *
  * @author sandynz
  */
-@Target({FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER}) //TYPE_USE, METHOD,
+@Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
 @Constraint(validatedBy = {CnIdCardNoValidator.class})
 @Documented
+@Repeatable(CnIdCardNo.List.class)
 public @interface CnIdCardNo {
 
     String message() default "身份证号码格式错误";
@@ -57,5 +61,13 @@ public @interface CnIdCardNo {
      * 默认值{@link Integer#MAX_VALUE}，相当于不校验。
      */
     int maxAge() default Integer.MAX_VALUE;
+
+    @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
+    @Retention(RUNTIME)
+    @Documented
+    @interface List {
+
+        CnIdCardNo[] value();
+    }
 
 }

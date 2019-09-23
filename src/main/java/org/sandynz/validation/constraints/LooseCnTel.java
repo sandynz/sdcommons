@@ -19,10 +19,13 @@ package org.sandynz.validation.constraints;
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
 import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Documented;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import javax.validation.Constraint;
@@ -35,10 +38,11 @@ import javax.validation.constraints.Pattern;
  * @author sandynz
  */
 @Pattern(regexp = "^0[1-9][0-9]{1,2}-[1-9][0-9]{7}$", message = "电话号码格式错误")
-@Target({FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER}) //TYPE_USE, METHOD,
+@Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
 @Constraint(validatedBy = {})
 @Documented
+@Repeatable(LooseCnTel.List.class)
 public @interface LooseCnTel {
 
     String message() default "Invalid cn tel";
@@ -46,5 +50,13 @@ public @interface LooseCnTel {
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
+
+    @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
+    @Retention(RUNTIME)
+    @Documented
+    @interface List {
+
+        LooseCnTel[] value();
+    }
 
 }
