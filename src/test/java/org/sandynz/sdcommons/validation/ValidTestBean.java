@@ -16,15 +16,25 @@
  */
 package org.sandynz.sdcommons.validation;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
+import javax.validation.constraints.FutureOrPresent;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.sandynz.sdcommons.validation.constraints.CnIdCardNo;
-import org.sandynz.sdcommons.validation.constraints.hibernate.LooseCnMobileOrTel;
+import org.sandynz.sdcommons.validation.constraints.DailyFuture;
 import org.sandynz.sdcommons.validation.constraints.EqualsAnyInt;
 import org.sandynz.sdcommons.validation.constraints.EqualsAnyString;
 import org.sandynz.sdcommons.validation.constraints.LooseCnMobile;
 import org.sandynz.sdcommons.validation.constraints.LooseCnTel;
+import org.sandynz.sdcommons.validation.constraints.hibernate.LooseCnMobileOrTel;
 
+/**
+ * Test class for validation.
+ *
+ * @author sandynz
+ */
 @Data
 @Accessors(chain = true)
 class ValidTestBean {
@@ -49,5 +59,17 @@ class ValidTestBean {
 
     @CnIdCardNo(minAge = 18, maxAge = 65)
     private String cnIdCardNo2;
+
+    @DailyFuture
+    private LocalDate localDateDailyFuture;
+
+    @DailyFuture
+    private LocalDateTime localDateTimeDailyFuture;
+
+    @DailyFuture
+    private Date dateDailyFuture;
+
+    @FutureOrPresent
+    private Date dateFutureOrPresent;
 
 }

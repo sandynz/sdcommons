@@ -17,9 +17,13 @@
 package org.sandynz.sdcommons.validation;
 
 import com.alibaba.fastjson.JSON;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
 import org.junit.Test;
@@ -106,6 +110,33 @@ public class ValidationTest {
         List<Pair<ValidTestBean, Boolean>> paramResultPairList = Arrays.asList(
                 Pair.of(new ValidTestBean().setCnIdCardNo2("53010219200508011x"), false),
                 Pair.of(new ValidTestBean().setCnIdCardNo2("530102199005080111"), true)
+        );
+        test0(paramResultPairList);
+    }
+
+    @Test
+    public void testDailyFuture() {
+        List<Pair<ValidTestBean, Boolean>> paramResultPairList = Arrays.asList(
+                Pair.of(new ValidTestBean().setLocalDateDailyFuture(LocalDate.now().plusDays(-1)), false),
+                Pair.of(new ValidTestBean().setLocalDateDailyFuture(LocalDate.now()), false),
+                Pair.of(new ValidTestBean().setLocalDateDailyFuture(LocalDate.now().plusDays(1)), true),
+                Pair.of(new ValidTestBean().setLocalDateTimeDailyFuture(LocalDateTime.now().plusDays(-1)), false),
+                Pair.of(new ValidTestBean().setLocalDateTimeDailyFuture(LocalDateTime.now()), false),
+                Pair.of(new ValidTestBean().setLocalDateTimeDailyFuture(LocalDateTime.now().plusDays(1)), true),
+                Pair.of(new ValidTestBean().setDateDailyFuture(DateUtils.addDays(new Date(), -1)), false),
+                Pair.of(new ValidTestBean().setDateDailyFuture(new Date()), false),
+                Pair.of(new ValidTestBean().setDateDailyFuture(DateUtils.addDays(new Date(), 1)), true)
+        );
+        test0(paramResultPairList);
+    }
+
+    @Test
+    public void testFutureOrPresent() {
+        List<Pair<ValidTestBean, Boolean>> paramResultPairList = Arrays.asList(
+                Pair.of(new ValidTestBean().setDateFutureOrPresent(DateUtils.addDays(new Date(), -1)), false),
+                Pair.of(new ValidTestBean().setDateFutureOrPresent(new Date()), false),
+                Pair.of(new ValidTestBean().setDateFutureOrPresent(DateUtils.addSeconds(new Date(), 5)), true),
+                Pair.of(new ValidTestBean().setDateFutureOrPresent(DateUtils.addDays(new Date(), 1)), true)
         );
         test0(paramResultPairList);
     }
