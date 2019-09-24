@@ -26,6 +26,7 @@ import org.sandynz.sdcommons.validation.constraints.CnIdCardNo;
 import org.sandynz.sdcommons.validation.constraints.DailyFuture;
 import org.sandynz.sdcommons.validation.constraints.DailyFutureOrPresent;
 import org.sandynz.sdcommons.validation.constraints.DailyPast;
+import org.sandynz.sdcommons.validation.constraints.DailyPastOrPresent;
 import org.sandynz.sdcommons.validation.constraints.EqualsAnyInt;
 import org.sandynz.sdcommons.validation.constraints.EqualsAnyString;
 import org.sandynz.sdcommons.validation.constraints.LooseCnMobile;
@@ -64,10 +65,8 @@ class ValidTestBean {
 
     @DailyFuture
     private LocalDate localDateDailyFuture;
-
     @DailyFuture
     private LocalDateTime localDateTimeDailyFuture;
-
     @DailyFuture
     private Date dateDailyFuture;
 
@@ -76,20 +75,23 @@ class ValidTestBean {
 
     @DailyFutureOrPresent
     private LocalDate localDateDailyFutureOrPresent;
-
     @DailyFutureOrPresent
     private LocalDateTime localDateTimeDailyFutureOrPresent;
-
     @DailyFutureOrPresent
     private Date dateDailyFutureOrPresent;
 
     @DailyPast
     private LocalDate localDateDailyPast;
-
     @DailyPast
     private LocalDateTime localDateTimeDailyPast;
-
     @DailyPast
     private Date dateDailyPast;
+
+    @DailyPastOrPresent
+    private LocalDate localDateDailyPastOrPresent;
+    @DailyPastOrPresent
+    private LocalDateTime localDateTimeDailyPastOrPresent;
+    @DailyPastOrPresent
+    private Date dateDailyPastOrPresent;
 
 }

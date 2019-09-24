@@ -173,4 +173,20 @@ public class ValidationTest {
         test0(paramResultPairList);
     }
 
+    @Test
+    public void testDailyPastOrPresent() {
+        List<Pair<ValidTestBean, Boolean>> paramResultPairList = Arrays.asList(
+                Pair.of(new ValidTestBean().setLocalDateDailyPastOrPresent(LocalDate.now().plusDays(-1)), true),
+                Pair.of(new ValidTestBean().setLocalDateDailyPastOrPresent(LocalDate.now()), true),
+                Pair.of(new ValidTestBean().setLocalDateDailyPastOrPresent(LocalDate.now().plusDays(1)), false),
+                Pair.of(new ValidTestBean().setLocalDateTimeDailyPastOrPresent(LocalDateTime.now().plusDays(-1)), true),
+                Pair.of(new ValidTestBean().setLocalDateTimeDailyPastOrPresent(LocalDateTime.now()), true),
+                Pair.of(new ValidTestBean().setLocalDateTimeDailyPastOrPresent(LocalDateTime.now().plusDays(1)), false),
+                Pair.of(new ValidTestBean().setDateDailyPastOrPresent(DateUtils.addDays(new Date(), -1)), true),
+                Pair.of(new ValidTestBean().setDateDailyPastOrPresent(new Date()), true),
+                Pair.of(new ValidTestBean().setDateDailyPastOrPresent(DateUtils.addDays(new Date(), 1)), false)
+        );
+        test0(paramResultPairList);
+    }
+
 }
