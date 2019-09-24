@@ -30,14 +30,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
-import org.sandynz.sdcommons.validation.constraintvalidators.time.futureorpresent.DailyFutureOrPresentValidatorForDate;
-import org.sandynz.sdcommons.validation.constraintvalidators.time.futureorpresent.DailyFutureOrPresentValidatorForLocalDate;
-import org.sandynz.sdcommons.validation.constraintvalidators.time.futureorpresent.DailyFutureOrPresentValidatorForLocalDateTime;
+import org.sandynz.sdcommons.validation.constraintvalidators.time.past.DailyPastValidatorForDate;
+import org.sandynz.sdcommons.validation.constraintvalidators.time.past.DailyPastValidatorForLocalDate;
+import org.sandynz.sdcommons.validation.constraintvalidators.time.past.DailyPastValidatorForLocalDateTime;
 
 /**
- * The annotated element represents today or later.
+ * The annotated element represents yesterday or previous.
  * <p>
- * Similar to {@link javax.validation.constraints.FutureOrPresent}, except:
+ * Similar to {@link javax.validation.constraints.Past}, except:
  * <ul>
  *     <li>Measure by day.</li>
  *     <li>Just support {@link java.util.Date}, {@link java.time.LocalDate}, {@link java.time.LocalDateTime}.</li>
@@ -48,15 +48,15 @@ import org.sandynz.sdcommons.validation.constraintvalidators.time.futureorpresen
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
 @Constraint(validatedBy = {
-        DailyFutureOrPresentValidatorForLocalDate.class,
-        DailyFutureOrPresentValidatorForLocalDateTime.class,
-        DailyFutureOrPresentValidatorForDate.class
+        DailyPastValidatorForLocalDate.class,
+        DailyPastValidatorForLocalDateTime.class,
+        DailyPastValidatorForDate.class
 })
 @Documented
-@Repeatable(DailyFutureOrPresent.List.class)
-public @interface DailyFutureOrPresent {
+@Repeatable(DailyPast.List.class)
+public @interface DailyPast {
 
-    String message() default "It's not after or just today";
+    String message() default "It's not before today";
 
     Class<?>[] groups() default {};
 
@@ -67,7 +67,7 @@ public @interface DailyFutureOrPresent {
     @Documented
     @interface List {
 
-        DailyFutureOrPresent[] value();
+        DailyPast[] value();
     }
 
 }

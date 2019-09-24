@@ -35,9 +35,11 @@ import org.sandynz.sdcommons.validation.constraintvalidators.time.future.DailyFu
 import org.sandynz.sdcommons.validation.constraintvalidators.time.future.DailyFutureValidatorForLocalDateTime;
 
 /**
+ * The annotated element represents tomorrow or later.
+ * <p>
  * Similar to {@link javax.validation.constraints.Future}, except:
  * <ul>
- *     <li>Minimum difference is one day.</li>
+ *     <li>Measure by day.</li>
  *     <li>Just support {@link java.util.Date}, {@link java.time.LocalDate}, {@link java.time.LocalDateTime}.</li>
  * </ul>
  *

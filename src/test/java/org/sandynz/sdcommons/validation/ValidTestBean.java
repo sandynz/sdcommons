@@ -25,6 +25,7 @@ import lombok.experimental.Accessors;
 import org.sandynz.sdcommons.validation.constraints.CnIdCardNo;
 import org.sandynz.sdcommons.validation.constraints.DailyFuture;
 import org.sandynz.sdcommons.validation.constraints.DailyFutureOrPresent;
+import org.sandynz.sdcommons.validation.constraints.DailyPast;
 import org.sandynz.sdcommons.validation.constraints.EqualsAnyInt;
 import org.sandynz.sdcommons.validation.constraints.EqualsAnyString;
 import org.sandynz.sdcommons.validation.constraints.LooseCnMobile;
@@ -81,5 +82,14 @@ class ValidTestBean {
 
     @DailyFutureOrPresent
     private Date dateDailyFutureOrPresent;
+
+    @DailyPast
+    private LocalDate localDateDailyPast;
+
+    @DailyPast
+    private LocalDateTime localDateTimeDailyPast;
+
+    @DailyPast
+    private Date dateDailyPast;
 
 }
