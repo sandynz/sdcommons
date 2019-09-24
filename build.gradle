@@ -54,3 +54,5 @@ dependencies {
     testCompile "org.hibernate:hibernate-validator:${hibernateValidatorVersion}"
 
 }
+
+apply from: 'build_native2ascii.gradle'

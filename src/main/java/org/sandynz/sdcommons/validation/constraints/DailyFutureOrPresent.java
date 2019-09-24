@@ -56,7 +56,7 @@ import org.sandynz.sdcommons.validation.constraintvalidators.time.futureorpresen
 @Repeatable(DailyFutureOrPresent.List.class)
 public @interface DailyFutureOrPresent {
 
-    String message() default "It's not after or just today";
+    String message() default "{org.sandynz.sdcommons.validation.constraints.DailyFutureOrPresent.message}";
 
     Class<?>[] groups() default {};
 

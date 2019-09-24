@@ -56,7 +56,7 @@ import org.sandynz.sdcommons.validation.constraintvalidators.time.future.DailyFu
 @Repeatable(DailyFuture.List.class)
 public @interface DailyFuture {
 
-    String message() default "It's not after today";
+    String message() default "{org.sandynz.sdcommons.validation.constraints.DailyFuture.message}";
 
     Class<?>[] groups() default {};
 

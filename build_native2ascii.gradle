@@ -1,0 +1,13 @@
+// https://stackoverflow.com/a/37743251
+
+//println 'native2ascii ...'
+
+import org.apache.tools.ant.filters.EscapeUnicode
+
+tasks.withType(ProcessResources).each { task ->
+    task.from(task.getSource()) {
+        //println 'task.getSource=' + task.getSource().findAll()
+        include '**/*.properties'
+        filter(EscapeUnicode)
+    }
+}

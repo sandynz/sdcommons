@@ -44,7 +44,7 @@ import org.sandynz.sdcommons.validation.constraintvalidators.EqualsAnyIntValidat
 @Repeatable(EqualsAnyInt.List.class)
 public @interface EqualsAnyInt {
 
-    String message() default "Equals none of int";
+    String message() default "{org.sandynz.sdcommons.validation.constraints.EqualsAnyInt.message}";
 
     Class<?>[] groups() default {};
 

@@ -44,7 +44,7 @@ import org.sandynz.sdcommons.validation.constraintvalidators.EqualsAnyStringVali
 @Repeatable(EqualsAnyString.List.class)
 public @interface EqualsAnyString {
 
-    String message() default "Equals none of string";
+    String message() default "{org.sandynz.sdcommons.validation.constraints.EqualsAnyString.message}";
 
     Class<?>[] groups() default {};
 

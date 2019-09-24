@@ -56,7 +56,7 @@ import org.sandynz.sdcommons.validation.constraintvalidators.time.pastorpresent.
 @Repeatable(DailyPastOrPresent.List.class)
 public @interface DailyPastOrPresent {
 
-    String message() default "It's not before or just today";
+    String message() default "{org.sandynz.sdcommons.validation.constraints.DailyPastOrPresent.message}";
 
     Class<?>[] groups() default {};
 

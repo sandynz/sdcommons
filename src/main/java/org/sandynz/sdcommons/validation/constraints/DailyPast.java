@@ -56,7 +56,7 @@ import org.sandynz.sdcommons.validation.constraintvalidators.time.past.DailyPast
 @Repeatable(DailyPast.List.class)
 public @interface DailyPast {
 
-    String message() default "It's not before today";
+    String message() default "{org.sandynz.sdcommons.validation.constraints.DailyPast.message}";
 
     Class<?>[] groups() default {};
 
