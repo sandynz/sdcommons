@@ -21,6 +21,7 @@ import java.util.Set;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.sandynz.sdcommons.validation.constraints.EqualsAnyInt;
+import org.sandynz.sdcommons.validation.constraints.EqualsAnyInt.IntegerAlternativesGetter;
 
 /**
  * Validate the object equals to any of specified int.
@@ -38,7 +39,17 @@ public class EqualsAnyIntValidator implements ConstraintValidator<EqualsAnyInt, 
     public void initialize(EqualsAnyInt constraintAnnotation) {
         int[] valueArr = constraintAnnotation.value();
         if (valueArr.length == 0) {
-            valueSet = null;
+            Class<? extends IntegerAlternativesGetter>[] getterClasses = constraintAnnotation.integerAlternativesGetter();
+            if (getterClasses.length == 0) {
+                valueSet = null;
+            } else {
+                try {
+                    IntegerAlternativesGetter getter = getterClasses[0].newInstance();
+                    valueSet = new HashSet<>(getter.getIntegerAlternatives());
+                } catch (InstantiationException | IllegalAccessException e) {
+                    throw new RuntimeException("newInstance failed");
+                }
+            }
         } else {
             valueSet = new HashSet<>(valueArr.length * 4 / 3 + 1);
             for (int value : valueArr) {

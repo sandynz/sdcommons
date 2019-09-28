@@ -28,6 +28,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.util.Collection;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import org.sandynz.sdcommons.validation.constraintvalidators.EqualsAnyIntValidator;
@@ -50,7 +51,29 @@ public @interface EqualsAnyInt {
 
     Class<? extends Payload>[] payload() default {};
 
+    /**
+     * Integer alternatives.
+     * <p>
+     * Optional.
+     * <p>
+     * First priority if defined.
+     */
     int[] value() default {};
+
+    /**
+     * Integer alternatives could be got from {@link EqualsAnyInt.IntegerAlternativesGetter}.
+     * <p>
+     * Optional.
+     * <p>
+     * Secondly priority if {@link #value()} defined.
+     */
+    Class<? extends EqualsAnyInt.IntegerAlternativesGetter>[] integerAlternativesGetter() default {};
+
+    interface IntegerAlternativesGetter {
+
+        Collection<Integer> getIntegerAlternatives();
+
+    }
 
     @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
     @Retention(RUNTIME)

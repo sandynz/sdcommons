@@ -77,10 +77,19 @@ public class ValidationTest {
     }
 
     @Test
-    public void testEqualsAnyInt() {
+    public void testEqualsAnyInt1() {
         List<Pair<ValidTestBean, Boolean>> paramResultPairList = Arrays.asList(
-                Pair.of(new ValidTestBean().setType(3), false),
-                Pair.of(new ValidTestBean().setType(1), true)
+                Pair.of(new ValidTestBean().setType1(3), false),
+                Pair.of(new ValidTestBean().setType1(1), true)
+        );
+        test0(paramResultPairList);
+    }
+
+    @Test
+    public void testEqualsAnyInt2() {
+        List<Pair<ValidTestBean, Boolean>> paramResultPairList = Arrays.asList(
+                Pair.of(new ValidTestBean().setType2(3), false),
+                Pair.of(new ValidTestBean().setType2(1), true)
         );
         test0(paramResultPairList);
     }

@@ -52,7 +52,10 @@ class ValidTestBean {
     private String cnMobileOrTel;
 
     @EqualsAnyInt(value = {1, 2}, message = "Must be one of 1 / 2")
-    private Integer type;
+    private Integer type1;
+
+    @EqualsAnyInt(integerAlternativesGetter = SexEnumIdExtractor.class)
+    private Integer type2;
 
     @EqualsAnyString(value = {"MALE", "FEMALE"}, message = "Must be one of MALE / FEMALE")
     private String sex1;
