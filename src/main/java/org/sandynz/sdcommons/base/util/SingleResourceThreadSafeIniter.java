@@ -31,12 +31,28 @@ public class SingleResourceThreadSafeIniter<Input, Result> {
 
     private final AtomicReference<Optional<Result>> resultAtomicReference = new AtomicReference<>();
 
+    /**
+     * Get resource, init resource if necessary.
+     * <p>
+     * Cache resource if it is null. Just init resource once globally.
+     *
+     * @param input            parameter used for {@code resourceFunction}
+     * @param resourceFunction function to init resource
+     */
     public Result initOnceAndGet(Input input, Function<Input, Result> resourceFunction) {
-        return initOnceAndGet(input, resourceFunction, false);
+        return initAndGet(input, resourceFunction, true);
     }
 
+    /**
+     * Get resource, init resource if necessary.
+     * <p>
+     * Just init once globally when {@code cacheNullResult} is true.
+     *
+     * @param input            parameter used for {@code resourceFunction}
+     * @param resourceFunction function to init resource
+     */
     @SuppressWarnings("OptionalAssignedToNull")
-    public Result initOnceAndGet(Input input, Function<Input, Result> resourceFunction, boolean cacheNullResult) {
+    public Result initAndGet(Input input, Function<Input, Result> resourceFunction, boolean cacheNullResult) {
         Optional<Result> optionalResult = resultAtomicReference.get();
         if (optionalResult == null) {
             synchronized (resultAtomicReference) {

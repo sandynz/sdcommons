@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -49,7 +50,7 @@ public class MultipleResourcesThreadSafeIniterTest {
     }
 
     @Test
-    public void testInitOnce() {
+    public void testInitOnceAndGet() {
         MultipleResourcesThreadSafeIniter<String, ExecutorServiceCfg, ExecutorService> initer = new MultipleResourcesThreadSafeIniter<>();
         for (int i = 1; i <= 3; i++) {
             String key = "k" + i;
@@ -75,17 +76,16 @@ public class MultipleResourcesThreadSafeIniterTest {
         }
     }
 
-    private void testCacheNullResult0(boolean cacheNullResult) {
+    private void testInitAndGet0(boolean cacheNullResult) {
         MultipleResourcesThreadSafeIniter<String, Void, String> initer = new MultipleResourcesThreadSafeIniter<>();
-        for (int i = 1; i <= 3; i++) {
-            String key = "k" + i;
-            AtomicReference<Boolean> inited = new AtomicReference<>(false);
+        int loopCount = 3;
+        for (int i = 1; i <= loopCount; i++) {
             List<String> stringList = new ArrayList<>();
+            String key = "k" + i;
+            AtomicInteger initCount = new AtomicInteger();
             for (int j = 1; j <= 3; j++) {
-                String result = initer.initOnceAndGet(key, null, aVoid -> {
-                    if (!inited.compareAndSet(false, true)) {
-                        throw new RuntimeException("inited not only once");
-                    }
+                String result = initer.initAndGet(key, null, aVoid -> {
+                    initCount.incrementAndGet();
                     return null;
                 }, cacheNullResult);
                 stringList.add(result);
@@ -93,19 +93,19 @@ public class MultipleResourcesThreadSafeIniterTest {
             for (String result : stringList) {
                 Assert.assertNull(result);
             }
-            log.info("result null");
+            log.info("result null, cacheNullResult={}, loopCount={}, initCount={}", cacheNullResult, loopCount, initCount);
+            Assert.assertEquals(cacheNullResult ? 1 : loopCount, initCount.get());
         }
     }
 
     @Test
-    public void testCacheNullResult1() {
-        testCacheNullResult0(true);
+    public void testInitAndGet1() {
+        testInitAndGet0(true);
     }
 
-    @Test(expected = RuntimeException.class)
-    public void testCacheNullResult2() {
-        // RuntimeException thrown when init k1
-        testCacheNullResult0(false);
+    @Test
+    public void testInitAndGet2() {
+        testInitAndGet0(false);
     }
 
 }

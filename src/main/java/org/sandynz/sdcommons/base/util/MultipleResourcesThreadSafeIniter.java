@@ -36,12 +36,31 @@ public class MultipleResourcesThreadSafeIniter<Key, Input, Result> {
 
     private final ConcurrentMap<Key, AtomicReference<Optional<Result>>> resultMap = new ConcurrentHashMap<>(16, 0.5F);
 
+    /**
+     * Get resource, init resource if necessary.
+     * <p>
+     * Cache resource if it is null. Just init resource once globally for every key.
+     *
+     * @param key              map key related to resource
+     * @param input            parameter used for {@code resourceFunction}
+     * @param resourceFunction function to init resource
+     */
     public Result initOnceAndGet(Key key, Input input, Function<Input, Result> resourceFunction) {
-        return initOnceAndGet(key, input, resourceFunction, false);
+        return initAndGet(key, input, resourceFunction, true);
     }
 
+    /**
+     * Get resource, init resource if necessary.
+     * <p>
+     * Just init once globally for every key when {@code cacheNullResult} is true.
+     *
+     * @param key              map key related to resource
+     * @param input            parameter used for {@code resourceFunction}
+     * @param resourceFunction function to init resource
+     * @param cacheNullResult  whether cache null resource or not
+     */
     @SuppressWarnings({"OptionalAssignedToNull", "SynchronizationOnLocalVariableOrMethodParameter"})
-    public Result initOnceAndGet(Key key, Input input, Function<Input, Result> function, boolean cacheNullResult) {
+    public Result initAndGet(Key key, Input input, Function<Input, Result> resourceFunction, boolean cacheNullResult) {
         AtomicReference<Optional<Result>> resultAtomicReference = resultMap.get(key);
         if (resultAtomicReference == null) {
             resultAtomicReference = new AtomicReference<>();
@@ -57,7 +76,7 @@ public class MultipleResourcesThreadSafeIniter<Key, Input, Result> {
             synchronized (resultAtomicReference) {
                 optionalResult = resultAtomicReference.get();
                 if (optionalResult == null) {
-                    Result result = function.apply(input);
+                    Result result = resourceFunction.apply(input);
                     if (result != null || cacheNullResult) {
                         optionalResult = Optional.ofNullable(result);
                         resultAtomicReference.set(optionalResult);
