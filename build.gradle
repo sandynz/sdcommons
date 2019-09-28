@@ -24,6 +24,9 @@ version '1.0-SNAPSHOT'
 sourceCompatibility = 1.8
 
 repositories {
+    maven {
+        url "http://maven.aliyun.com/nexus/content/groups/public/"
+    }
     mavenCentral()
 }
 
@@ -37,11 +40,13 @@ ext {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
     testCompile group: 'com.alibaba', name: 'fastjson', version: '1.2.60'
 
     compile group: 'org.slf4j', name: 'slf4j-api', version: "${slf4jVersion}"
     testCompile group: 'org.slf4j', name: 'slf4j-simple', version: "${slf4jVersion}"
+
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
+    compile group: 'joda-time', name: 'joda-time', version: '2.10.4'
 
     // validation
     compileOnly "javax.el:javax.el-api:${elApiVersion}"
