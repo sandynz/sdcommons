@@ -51,16 +51,16 @@ public class SingleResourceThreadSafeIniterTest {
     @Test
     public void testInitOnce() {
         ExecutorServiceCfg cfg = new ExecutorServiceCfg().setCorePoolSize(1).setMaxPoolSize(10).setQueryCapacity(50);
-        SingleResourceThreadSafeIniter<ExecutorService, ExecutorServiceCfg> initer = new SingleResourceThreadSafeIniter<>();
+        SingleResourceThreadSafeIniter<ExecutorServiceCfg, ExecutorService> initer = new SingleResourceThreadSafeIniter<>();
         AtomicReference<Boolean> inited = new AtomicReference<>(false);
         List<ExecutorService> executorServiceList = new ArrayList<>();
         for (int i = 1; i <= 3; i++) {
-            ExecutorService executorService = initer.initOnceAndGet(executorServiceCfg -> {
+            ExecutorService executorService = initer.initOnceAndGet(cfg, executorServiceCfg -> {
                 if (!inited.compareAndSet(false, true)) {
                     throw new RuntimeException("inited not only once");
                 }
                 return new ThreadPoolExecutor(cfg.corePoolSize, cfg.maxPoolSize, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(cfg.getQueryCapacity()));
-            }, cfg);
+            });
             executorServiceList.add(executorService);
         }
         Assert.assertTrue(executorServiceList.size() > 0);
@@ -73,16 +73,16 @@ public class SingleResourceThreadSafeIniterTest {
     }
 
     private void testCacheNullResult0(boolean cacheNullResult) {
-        SingleResourceThreadSafeIniter<String, Void> initer = new SingleResourceThreadSafeIniter<>();
+        SingleResourceThreadSafeIniter<Void, String> initer = new SingleResourceThreadSafeIniter<>();
         AtomicReference<Boolean> inited = new AtomicReference<>(false);
         List<String> stringList = new ArrayList<>();
         for (int i = 1; i <= 3; i++) {
-            String result = initer.initOnceAndGet(aVoid -> {
+            String result = initer.initOnceAndGet(null, aVoid -> {
                 if (!inited.compareAndSet(false, true)) {
                     throw new RuntimeException("inited not only once");
                 }
                 return null;
-            }, null, cacheNullResult);
+            }, cacheNullResult);
             stringList.add(result);
         }
         for (String result : stringList) {

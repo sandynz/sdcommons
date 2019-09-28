@@ -23,20 +23,20 @@ import java.util.function.Function;
 /**
  * Thread-safe single resource initializer.
  *
- * @param <Result> the result type
  * @param <Input>  the input parameter type
+ * @param <Result> the result type
  * @author sandynz
  */
-public class SingleResourceThreadSafeIniter<Result, Input> {
+public class SingleResourceThreadSafeIniter<Input, Result> {
 
     private final AtomicReference<Optional<Result>> resultAtomicReference = new AtomicReference<>();
 
-    public Result initOnceAndGet(Function<Input, Result> resourceFunction, Input input) {
-        return initOnceAndGet(resourceFunction, input, false);
+    public Result initOnceAndGet(Input input, Function<Input, Result> resourceFunction) {
+        return initOnceAndGet(input, resourceFunction, false);
     }
 
     @SuppressWarnings("OptionalAssignedToNull")
-    public Result initOnceAndGet(Function<Input, Result> resourceFunction, Input input, boolean cacheNullResult) {
+    public Result initOnceAndGet(Input input, Function<Input, Result> resourceFunction, boolean cacheNullResult) {
         Optional<Result> optionalResult = resultAtomicReference.get();
         if (optionalResult == null) {
             synchronized (resultAtomicReference) {
