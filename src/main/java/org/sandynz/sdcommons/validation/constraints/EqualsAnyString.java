@@ -28,6 +28,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.util.Collection;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import org.sandynz.sdcommons.validation.constraintvalidators.EqualsAnyStringValidator;
@@ -50,7 +51,29 @@ public @interface EqualsAnyString {
 
     Class<? extends Payload>[] payload() default {};
 
+    /**
+     * String alternatives.
+     * <p>
+     * Optional.
+     * <p>
+     * First priority if defined.
+     */
     String[] value() default {};
+
+    /**
+     * String alternatives could be got from {@link StringAlternativesGetter}.
+     * <p>
+     * Optional.
+     * <p>
+     * Secondly priority if {@link #value()} defined.
+     */
+    Class<? extends StringAlternativesGetter>[] stringAlternativesGetter() default {};
+
+    interface StringAlternativesGetter {
+
+        Collection<String> getStringAlternatives();
+
+    }
 
     @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
     @Retention(RUNTIME)

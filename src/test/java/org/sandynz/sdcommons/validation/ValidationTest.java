@@ -86,10 +86,19 @@ public class ValidationTest {
     }
 
     @Test
-    public void testEqualsAnyString() {
+    public void testEqualsAnyString1() {
         List<Pair<ValidTestBean, Boolean>> paramResultPairList = Arrays.asList(
-                Pair.of(new ValidTestBean().setSex("F"), false),
-                Pair.of(new ValidTestBean().setSex("Male"), true)
+                Pair.of(new ValidTestBean().setSex1("F"), false),
+                Pair.of(new ValidTestBean().setSex1("MALE"), true)
+        );
+        test0(paramResultPairList);
+    }
+
+    @Test
+    public void testEqualsAnyString2() {
+        List<Pair<ValidTestBean, Boolean>> paramResultPairList = Arrays.asList(
+                Pair.of(new ValidTestBean().setSex2("F"), false),
+                Pair.of(new ValidTestBean().setSex2("MALE"), true)
         );
         test0(paramResultPairList);
     }

@@ -54,8 +54,11 @@ class ValidTestBean {
     @EqualsAnyInt(value = {1, 2}, message = "Must be one of 1 / 2")
     private Integer type;
 
-    @EqualsAnyString(value = {"Male", "Female"}, message = "Must be one of Male / Female")
-    private String sex;
+    @EqualsAnyString(value = {"MALE", "FEMALE"}, message = "Must be one of MALE / FEMALE")
+    private String sex1;
+
+    @EqualsAnyString(stringAlternativesGetter = SexEnumNameExtractor.class)
+    private String sex2;
 
     @CnIdCardNo
     private String cnIdCardNo1;

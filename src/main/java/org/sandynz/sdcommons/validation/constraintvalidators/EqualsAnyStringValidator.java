@@ -22,6 +22,7 @@ import java.util.Set;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.sandynz.sdcommons.validation.constraints.EqualsAnyString;
+import org.sandynz.sdcommons.validation.constraints.EqualsAnyString.StringAlternativesGetter;
 
 /**
  * Validate the object equals to any of specified string.
@@ -39,7 +40,17 @@ public class EqualsAnyStringValidator implements ConstraintValidator<EqualsAnySt
     public void initialize(EqualsAnyString constraintAnnotation) {
         String[] valueArr = constraintAnnotation.value();
         if (valueArr.length == 0) {
-            valueSet = null;
+            Class<? extends StringAlternativesGetter>[] extractorClasses = constraintAnnotation.stringAlternativesGetter();
+            if (extractorClasses.length == 0) {
+                valueSet = null;
+            } else {
+                try {
+                    StringAlternativesGetter extractor = extractorClasses[0].newInstance();
+                    valueSet = new HashSet<>(extractor.getStringAlternatives());
+                } catch (InstantiationException | IllegalAccessException e) {
+                    throw new RuntimeException("newInstance failed");
+                }
+            }
         } else {
             valueSet = new HashSet<>(valueArr.length * 4 / 3 + 1);
             valueSet.addAll(Arrays.asList(valueArr));
