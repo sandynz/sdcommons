@@ -22,14 +22,12 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import lombok.Data;
-import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
+import org.sandynz.sdcommons.concurrent.ExecutorServiceTestCfg;
 
 /**
  * {@link SingleResourceThreadSafeIniter} test cases.
@@ -39,20 +37,10 @@ import org.junit.Test;
 @Slf4j
 public class SingleResourceThreadSafeIniterTest {
 
-    @Data
-    @Accessors(chain = true)
-    private static class ExecutorServiceCfg {
-
-        private int corePoolSize;
-        private int maxPoolSize;
-        private int queryCapacity;
-
-    }
-
     @Test
     public void testInitOnceAndGet() {
-        ExecutorServiceCfg cfg = new ExecutorServiceCfg().setCorePoolSize(1).setMaxPoolSize(10).setQueryCapacity(50);
-        SingleResourceThreadSafeIniter<ExecutorServiceCfg, ExecutorService> initer = new SingleResourceThreadSafeIniter<>();
+        ExecutorServiceTestCfg cfg = new ExecutorServiceTestCfg(1, 10, 50);
+        SingleResourceThreadSafeIniter<ExecutorServiceTestCfg, ExecutorService> initer = new SingleResourceThreadSafeIniter<>();
         AtomicReference<Boolean> inited = new AtomicReference<>(false);
         List<ExecutorService> executorServiceList = new ArrayList<>();
         for (int i = 1; i <= 3; i++) {
@@ -60,7 +48,7 @@ public class SingleResourceThreadSafeIniterTest {
                 if (!inited.compareAndSet(false, true)) {
                     throw new RuntimeException("inited not only once");
                 }
-                return new ThreadPoolExecutor(cfg.corePoolSize, cfg.maxPoolSize, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(cfg.getQueryCapacity()));
+                return new ThreadPoolExecutor(cfg.getCorePoolSize(), cfg.getMaxPoolSize(), cfg.getKeepAliveTime(), cfg.getUnit(), new LinkedBlockingQueue<>(cfg.getQueueCapacity()));
             });
             executorServiceList.add(executorService);
         }

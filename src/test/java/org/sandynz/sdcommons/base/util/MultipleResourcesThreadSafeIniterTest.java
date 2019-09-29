@@ -22,14 +22,12 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import lombok.Data;
-import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
+import org.sandynz.sdcommons.concurrent.ExecutorServiceTestCfg;
 
 /**
  * {@link MultipleResourcesThreadSafeIniter} test cases.
@@ -39,22 +37,12 @@ import org.junit.Test;
 @Slf4j
 public class MultipleResourcesThreadSafeIniterTest {
 
-    @Data
-    @Accessors(chain = true)
-    private static class ExecutorServiceCfg {
-
-        private int corePoolSize;
-        private int maxPoolSize;
-        private int queryCapacity;
-
-    }
-
     @Test
     public void testInitOnceAndGet() {
-        MultipleResourcesThreadSafeIniter<String, ExecutorServiceCfg, ExecutorService> initer = new MultipleResourcesThreadSafeIniter<>();
+        MultipleResourcesThreadSafeIniter<String, ExecutorServiceTestCfg, ExecutorService> initer = new MultipleResourcesThreadSafeIniter<>();
         for (int i = 1; i <= 3; i++) {
             String key = "k" + i;
-            ExecutorServiceCfg cfg = new ExecutorServiceCfg().setCorePoolSize(i).setMaxPoolSize(10).setQueryCapacity(50);
+            ExecutorServiceTestCfg cfg = new ExecutorServiceTestCfg(1, 10, 50);
             AtomicReference<Boolean> inited = new AtomicReference<>(false);
             List<ExecutorService> executorServiceList = new ArrayList<>();
             for (int j = 1; j <= 3; j++) {
@@ -62,7 +50,7 @@ public class MultipleResourcesThreadSafeIniterTest {
                     if (!inited.compareAndSet(false, true)) {
                         throw new RuntimeException("inited not only once");
                     }
-                    return new ThreadPoolExecutor(cfg.corePoolSize, cfg.maxPoolSize, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(cfg.getQueryCapacity()));
+                    return new ThreadPoolExecutor(cfg.getCorePoolSize(), cfg.getMaxPoolSize(), cfg.getKeepAliveTime(), cfg.getUnit(), new LinkedBlockingQueue<>(cfg.getQueueCapacity()));
                 });
                 executorServiceList.add(executorService);
             }
