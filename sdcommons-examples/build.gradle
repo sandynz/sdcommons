@@ -1,0 +1,36 @@
+buildscript {
+    dependencies {
+        classpath "io.franzbecker:gradle-lombok:1.14"
+    }
+}
+
+plugins {
+    id 'idea'
+    id 'java'
+}
+
+apply plugin: "io.franzbecker.gradle-lombok"
+
+idea {
+    module {
+        downloadSources = false
+        downloadJavadoc = false
+    }
+}
+
+group 'org.sandynz'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    maven {
+        url "http://maven.aliyun.com/nexus/content/groups/public/"
+    }
+    mavenCentral()
+}
+
+dependencies {
+    compile project(":sdcommons-core")
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}

@@ -60,4 +60,4 @@ dependencies {
 
 }
 
-apply from: 'build_native2ascii.gradle'
+apply from: rootProject.file('build_native2ascii.gradle')

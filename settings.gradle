@@ -1,2 +1,4 @@
 rootProject.name = 'sdcommons'
+include 'sdcommons-core'
+include 'sdcommons-examples'
 
