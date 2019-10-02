@@ -297,6 +297,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * }}</pre>
  *
  * @author Doug Lea
+ * @author sandynz
  * @since 1.5
  */
 public class ThreadPoolExecutor extends AbstractExecutorService {
@@ -565,6 +566,11 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      */
     private static final RuntimePermission shutdownPerm =
             new RuntimePermission("modifyThread");
+
+    /**
+     * Used to extend {@linkplain #execute(Runnable)} method.
+     */
+    private final ExecutorExtContext executorExtContext = new ExecutorExtContext();
 
     /**
      * Class Worker mainly maintains interrupt control state for
@@ -1943,6 +1949,13 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
     }
 
     /**
+     * Returns {@linkplain #execute(Runnable)} method extension context.
+     */
+    protected ExecutorExtContext getExecutorExtContext() {
+        return executorExtContext;
+    }
+
+    /**
      * Returns a string identifying this pool, as well as its state,
      * including indications of run state and estimated worker and
      * task counts.
@@ -2171,4 +2184,58 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
             }
         }
     }
+
+    /**
+     * {@linkplain #execute(Runnable)} extension context.
+     * When sub-class override {@code execute} method,
+     * exposed internal methods could be used to implement more features,
+     * e.g. implement different add worker strategy, but not the only fixed one.
+     */
+    public class ExecutorExtContext {
+
+        /**
+         * @return whether {@link ThreadPoolExecutor} is running.
+         */
+        public boolean isRunning() {
+            int c = ctl.get();
+            return ThreadPoolExecutor.isRunning(c);
+        }
+
+        /**
+         * @return worker count of {@link ThreadPoolExecutor}.
+         */
+        public int getWorkerCount() {
+            int c = ctl.get();
+            return ThreadPoolExecutor.workerCountOf(c);
+        }
+
+        public boolean addWorker(Runnable firstTask, boolean core) {
+            return ThreadPoolExecutor.this.addWorker(firstTask, core);
+        }
+
+        public boolean removeTask(Runnable task) {
+            return ThreadPoolExecutor.this.remove(task);
+        }
+
+        public void rejectTask(Runnable command) {
+            ThreadPoolExecutor.this.reject(command);
+        }
+
+        public BlockingQueue<Runnable> getWorkQueue() {
+            return ThreadPoolExecutor.this.getQueue();
+        }
+
+        public int getCorePoolSize() {
+            return ThreadPoolExecutor.this.getCorePoolSize();
+        }
+
+        public int getMaximumPoolSize() {
+            return ThreadPoolExecutor.this.getMaximumPoolSize();
+        }
+
+        public int getActiveCount() {
+            return ThreadPoolExecutor.this.getActiveCount();
+        }
+    }
+
 }

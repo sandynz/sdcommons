@@ -16,34 +16,21 @@
  */
 package org.sandynz.sdcommons.concurrent;
 
-import java.util.concurrent.TimeUnit;
-import lombok.Data;
-import lombok.experimental.Accessors;
+import org.sandynz.sdcommons.concurrent.ThreadPoolExecutor.ExecutorExtContext;
 
 /**
- * Configuration used to create {@link java.util.concurrent.ExecutorService}.
+ * Add worker step abstraction of {@linkplain ThreadPoolExecutor#execute(Runnable)}.
  *
  * @author sandynz
  */
-@Data
-@Accessors(chain = true)
-public class ExecutorServiceTestCfg {
+public interface ExecutorAddWorkerStrategy {
 
-    private int corePoolSize;
-    private int maxPoolSize;
-    private long keepAliveTime = 60L;
-    private TimeUnit unit = TimeUnit.SECONDS;
-    private int queueCapacity;
-    private String threadNamePrefix = "test-";
-    private ExecutorAddWorkerStrategy addWorkerStrategy;
-
-    public ExecutorServiceTestCfg() {
-    }
-
-    public ExecutorServiceTestCfg(int corePoolSize, int maxPoolSize, int queueCapacity) {
-        this.corePoolSize = corePoolSize;
-        this.maxPoolSize = maxPoolSize;
-        this.queueCapacity = queueCapacity;
-    }
+    /**
+     * Add worker step of {@linkplain ThreadPoolExecutor#execute(Runnable)}.
+     *
+     * @param command the same as {@code ThreadPoolExecutor#execute}'s {@code command}
+     * @param ctx     {@code ThreadPoolExecutor#execute} extension context
+     */
+    void addWorker(Runnable command, ExecutorExtContext ctx);
 
 }

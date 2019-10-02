@@ -16,34 +16,26 @@
  */
 package org.sandynz.sdcommons.concurrent;
 
-import java.util.concurrent.TimeUnit;
-import lombok.Data;
-import lombok.experimental.Accessors;
+import org.sandynz.sdcommons.concurrent.ThreadPoolExecutor.ExecutorExtContext;
 
 /**
- * Configuration used to create {@link java.util.concurrent.ExecutorService}.
+ * Strategy implementation which is eager to add new worker.
  *
  * @author sandynz
  */
-@Data
-@Accessors(chain = true)
-public class ExecutorServiceTestCfg {
+public class ExecutorAddWorkerEagerStrategy extends AbstractExecutorAddWorkerStrategy {
 
-    private int corePoolSize;
-    private int maxPoolSize;
-    private long keepAliveTime = 60L;
-    private TimeUnit unit = TimeUnit.SECONDS;
-    private int queueCapacity;
-    private String threadNamePrefix = "test-";
-    private ExecutorAddWorkerStrategy addWorkerStrategy;
-
-    public ExecutorServiceTestCfg() {
-    }
-
-    public ExecutorServiceTestCfg(int corePoolSize, int maxPoolSize, int queueCapacity) {
-        this.corePoolSize = corePoolSize;
-        this.maxPoolSize = maxPoolSize;
-        this.queueCapacity = queueCapacity;
+    @Override
+    protected boolean addWorkerStep1(Runnable command, ExecutorExtContext ctx) {
+        if (ctx.getWorkerCount() < ctx.getCorePoolSize()) {
+            return ctx.addWorker(command, true);
+        }
+        int workerCount = ctx.getWorkerCount();
+        if (workerCount < ctx.getMaximumPoolSize() && workerCount < ctx.getWorkQueue().size()) {
+            // If work queue is SynchronousQueue which size is 0, steps are the same as ThreadPoolExecutor#execute
+            return ctx.addWorker(command, false);
+        }
+        return false;
     }
 
 }
