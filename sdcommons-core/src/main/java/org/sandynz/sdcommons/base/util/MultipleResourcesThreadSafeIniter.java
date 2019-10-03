@@ -16,11 +16,10 @@
  */
 package org.sandynz.sdcommons.base.util;
 
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -34,63 +33,52 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MultipleResourcesThreadSafeIniter<Key, Input, Result> {
 
-    private final ConcurrentMap<Key, AtomicReference<Optional<Result>>> resultMap = new ConcurrentHashMap<>(16, 0.5F);
+    private final ConcurrentMap<Key, SingleResourceThreadSafeIniter<Input, Result>> resultMap = new ConcurrentHashMap<>(16, 0.5F);
 
     /**
-     * Get resource, init resource if necessary.
+     * Get resource, init or re-init resource if necessary.
      * <p>
      * Cache resource if it is null. Just init resource once globally for every key.
      *
-     * @param key              map key related to resource
-     * @param input            parameter used for {@code resourceFunction}
-     * @param resourceFunction function to init resource
+     * @see #initAndGet(Object, Object, BiFunction, Predicate, Predicate)
      */
-    public Result initOnceAndGet(Key key, Input input, Function<Input, Result> resourceFunction) {
-        return initAndGet(key, input, resourceFunction, true);
+    public Result initOnceAndGet(
+            Key key, Input input,
+            BiFunction<Input, Result/*OldResult*/, Result> resourceFunction
+    ) {
+        return initAndGet(key, input, resourceFunction, result -> true, null);
     }
 
     /**
-     * Get resource, init resource if necessary.
-     * <p>
-     * Just init once globally for every key when {@code cacheNullResult} is true.
+     * Get resource, init or re-init resource if necessary.
      *
-     * @param key              map key related to resource
-     * @param input            parameter used for {@code resourceFunction}
-     * @param resourceFunction function to init resource
-     * @param cacheNullResult  whether cache null resource or not
+     * @param key                      map key related to resource. Could NOT be null.
+     * @param input                    parameter used for {@code resourceFunction}. Could be null.
+     * @param resourceFunction         function to init resource. Could NOT be null.
+     * @param cacheResourcePredicate   indicate whether to cache resource or not by predicated result. Could NOT be null.
+     * @param resourceExpiredPredicate indicate whether the resource is expired or not by predicated result, if result is true, then re-init resource. Could be null.
+     * @return resource or null
+     * @throws NullPointerException if key / resourceFunction / cacheResourcePredicate is null
      */
-    @SuppressWarnings({"OptionalAssignedToNull", "SynchronizationOnLocalVariableOrMethodParameter"})
-    public Result initAndGet(Key key, Input input, Function<Input, Result> resourceFunction, boolean cacheNullResult) {
-        AtomicReference<Optional<Result>> resultAtomicReference = resultMap.get(key);
-        if (resultAtomicReference == null) {
-            resultAtomicReference = new AtomicReference<>();
-            AtomicReference<Optional<Result>> oldValue = resultMap.putIfAbsent(key, resultAtomicReference);
-            log.info("resultAtomicReference null, key={}, oldValueIsNull={}", key, (oldValue == null));
+    public Result initAndGet(
+            Key key, Input input,
+            BiFunction<Input, Result/*OldResult*/, Result> resourceFunction,
+            Predicate<Result> cacheResourcePredicate,
+            Predicate<Result> resourceExpiredPredicate
+    ) {
+        if (key == null || resourceFunction == null || cacheResourcePredicate == null) {
+            throw new NullPointerException();
+        }
+        SingleResourceThreadSafeIniter<Input, Result> singleResourceIniter = resultMap.get(key);
+        if (singleResourceIniter == null) {
+            singleResourceIniter = new SingleResourceThreadSafeIniter<>();
+            SingleResourceThreadSafeIniter<Input, Result> oldValue = resultMap.putIfAbsent(key, singleResourceIniter);
+            log.info("singleResourceIniter null, key={}, oldValueIsNull={}", key, (oldValue == null));
             if (oldValue != null) {
-                resultAtomicReference = oldValue;
+                singleResourceIniter = oldValue;
             }
         }
-
-        Optional<Result> optionalResult = resultAtomicReference.get();
-        if (optionalResult == null) {
-            synchronized (resultAtomicReference) {
-                optionalResult = resultAtomicReference.get();
-                if (optionalResult == null) {
-                    Result result = resourceFunction.apply(input);
-                    if (result != null || cacheNullResult) {
-                        optionalResult = Optional.ofNullable(result);
-                        resultAtomicReference.set(optionalResult);
-                        return optionalResult.orElse(null);
-                    } else {
-                        return null;
-                    }
-                } else {
-                    return optionalResult.orElse(null);
-                }
-            }
-        } else {
-            return optionalResult.orElse(null);
-        }
+        return singleResourceIniter.initAndGet(input, resourceFunction, cacheResourcePredicate, resourceExpiredPredicate);
     }
 
 }

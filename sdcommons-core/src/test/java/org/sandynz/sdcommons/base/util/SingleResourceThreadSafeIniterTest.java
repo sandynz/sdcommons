@@ -19,11 +19,13 @@ package org.sandynz.sdcommons.base.util;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
@@ -44,11 +46,11 @@ public class SingleResourceThreadSafeIniterTest {
         AtomicReference<Boolean> inited = new AtomicReference<>(false);
         List<ExecutorService> executorServiceList = new ArrayList<>();
         for (int i = 1; i <= 3; i++) {
-            ExecutorService executorService = initer.initOnceAndGet(cfg, executorServiceCfg -> {
+            ExecutorService executorService = initer.initOnceAndGet(cfg, (input, oldResult) -> {
                 if (!inited.compareAndSet(false, true)) {
                     throw new RuntimeException("inited not only once");
                 }
-                return new ThreadPoolExecutor(cfg.getCorePoolSize(), cfg.getMaxPoolSize(), cfg.getKeepAliveTime(), cfg.getUnit(), new LinkedBlockingQueue<>(cfg.getQueueCapacity()));
+                return new ThreadPoolExecutor(input.getCorePoolSize(), input.getMaxPoolSize(), input.getKeepAliveTime(), input.getUnit(), new LinkedBlockingQueue<>(input.getQueueCapacity()));
             });
             executorServiceList.add(executorService);
         }
@@ -61,33 +63,42 @@ public class SingleResourceThreadSafeIniterTest {
         }
     }
 
-    private void testInitAndGet0(boolean cacheNullResult) {
+    private void testInitAndGet0(Predicate<String> cacheResourcePredicate, Predicate<String> resourceExpiredPredicate) {
         SingleResourceThreadSafeIniter<Void, String> initer = new SingleResourceThreadSafeIniter<>();
         List<String> stringList = new ArrayList<>();
         int loopCount = 3;
         AtomicInteger initCount = new AtomicInteger();
+        boolean cacheResourcePredicateResult = false;
+        boolean resourceExpiredPredicateResult = false;
         for (int i = 1; i <= loopCount; i++) {
-            String result = initer.initAndGet(null, aVoid -> {
+            String result = initer.initAndGet(null, (input, oldResult) -> {
                 initCount.incrementAndGet();
                 return null;
-            }, cacheNullResult);
+            }, cacheResourcePredicate, resourceExpiredPredicate);
+            cacheResourcePredicateResult = cacheResourcePredicate.test(result);
+            resourceExpiredPredicateResult = resourceExpiredPredicate != null && resourceExpiredPredicate.test(result);
             stringList.add(result);
         }
         for (String result : stringList) {
             Assert.assertNull(result);
         }
-        log.info("result null, cacheNullResult={}, loopCount={}, initCount={}", cacheNullResult, loopCount, initCount);
-        Assert.assertEquals(cacheNullResult ? 1 : loopCount, initCount.get());
+        log.info("result null, cacheResourcePredicateResult={}, resourceExpiredPredicateResult={}, loopCount={}, initCount={}", cacheResourcePredicateResult, resourceExpiredPredicateResult, loopCount, initCount);
+        Assert.assertEquals(cacheResourcePredicateResult && !resourceExpiredPredicateResult ? 1 : loopCount, initCount.get());
     }
 
     @Test
     public void testInitAndGet1() {
-        testInitAndGet0(true);
+        testInitAndGet0(s -> true, null);
     }
 
     @Test
     public void testInitAndGet2() {
-        testInitAndGet0(false);
+        testInitAndGet0(s -> false, null);
+    }
+
+    @Test
+    public void testInitAndGet3() {
+        testInitAndGet0(s -> true, Objects::isNull);
     }
 
 }

@@ -18,7 +18,9 @@ package org.sandynz.sdcommons.base.util;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Thread-safe single resource initializer.
@@ -27,52 +29,81 @@ import java.util.function.Function;
  * @param <Result> the result type
  * @author sandynz
  */
+@Slf4j
 public class SingleResourceThreadSafeIniter<Input, Result> {
 
     private final AtomicReference<Optional<Result>> resultAtomicReference = new AtomicReference<>();
 
     /**
-     * Get resource, init resource if necessary.
+     * Get resource, init or re-init resource if necessary.
      * <p>
      * Cache resource if it is null. Just init resource once globally.
      *
-     * @param input            parameter used for {@code resourceFunction}
-     * @param resourceFunction function to init resource
+     * @see #initAndGet(Object, BiFunction, Predicate, Predicate)
      */
-    public Result initOnceAndGet(Input input, Function<Input, Result> resourceFunction) {
-        return initAndGet(input, resourceFunction, true);
+    public Result initOnceAndGet(
+            Input input,
+            BiFunction<Input, Result/*OldResult*/, Result> resourceFunction
+    ) {
+        return initAndGet(input, resourceFunction, result -> true, null);
     }
 
     /**
-     * Get resource, init resource if necessary.
-     * <p>
-     * Just init once globally when {@code cacheNullResult} is true.
+     * Get resource, init or re-init resource if necessary.
      *
-     * @param input            parameter used for {@code resourceFunction}
-     * @param resourceFunction function to init resource
+     * @param input                    parameter used for {@code resourceFunction}. Could be null.
+     * @param resourceFunction         function to init resource. Could NOT be null.
+     * @param cacheResourcePredicate   indicate whether to cache resource or not by predicated result. Could NOT be null.
+     * @param resourceExpiredPredicate indicate whether the resource is expired or not by predicated result, if result is true, then re-init resource. Could be null.
+     * @return resource or null
+     * @throws NullPointerException if resourceFunction / cacheResourcePredicate is null
      */
     @SuppressWarnings("OptionalAssignedToNull")
-    public Result initAndGet(Input input, Function<Input, Result> resourceFunction, boolean cacheNullResult) {
+    public Result initAndGet(
+            Input input,
+            BiFunction<Input, Result/*OldResult*/, Result> resourceFunction,
+            Predicate<Result> cacheResourcePredicate,
+            Predicate<Result> resourceExpiredPredicate
+    ) {
+        if (resourceFunction == null || cacheResourcePredicate == null) {
+            throw new NullPointerException();
+        }
         Optional<Result> optionalResult = resultAtomicReference.get();
         if (optionalResult == null) {
             synchronized (resultAtomicReference) {
                 optionalResult = resultAtomicReference.get();
                 if (optionalResult == null) {
-                    Result result = resourceFunction.apply(input);
-                    if (result != null || cacheNullResult) {
+                    Result result = resourceFunction.apply(input, null);
+                    if (cacheResourcePredicate.test(result)) {
                         optionalResult = Optional.ofNullable(result);
                         resultAtomicReference.set(optionalResult);
-                        return optionalResult.orElse(null);
+                        return result;
                     } else {
                         return null;
                     }
-                } else {
-                    return optionalResult.orElse(null);
                 }
             }
-        } else {
-            return optionalResult.orElse(null);
         }
+        Result result = optionalResult.orElse(null);
+        if (resourceExpiredPredicate != null && resourceExpiredPredicate.test(result)) {
+            synchronized (resultAtomicReference) {
+                optionalResult = resultAtomicReference.get();
+                result = optionalResult.orElse(null);
+                if (resourceExpiredPredicate.test(result)) {
+                    log.info("resource expired, input={}", input);
+                    result = resourceFunction.apply(input, result);
+                    if (cacheResourcePredicate.test(result)) {
+                        optionalResult = Optional.ofNullable(result);
+                        resultAtomicReference.set(optionalResult);
+                        return result;
+                    } else {
+                        log.warn("resource expired, but re-inited resource could not be cached");
+                        return null;
+                    }
+                }
+            }
+        }
+        return result;
     }
 
 }
