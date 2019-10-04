@@ -34,6 +34,12 @@ public class SingleResourceThreadSafeIniter<Input, Result> {
 
     private final AtomicReference<Optional<Result>> resultAtomicReference = new AtomicReference<>();
 
+    private volatile boolean resourceCleaned = false;
+
+    boolean isResourceCleaned() {
+        return resourceCleaned;
+    }
+
     /**
      * Get resource, init or re-init resource if necessary.
      * <p>
@@ -52,7 +58,7 @@ public class SingleResourceThreadSafeIniter<Input, Result> {
      * Get resource, init or re-init resource if necessary.
      *
      * @param input                    parameter used for {@code resourceFunction}. Could be null.
-     * @param resourceFunction         function to init resource. Could NOT be null.
+     * @param resourceFunction         function to init resource, re-init resource, destroy expired resource. If new resource created after old resource expired and could not be cached, then resource will be cleaned. Could NOT be null.
      * @param cacheResourcePredicate   indicate whether to cache resource or not by predicated result. Could NOT be null.
      * @param resourceExpiredPredicate indicate whether the resource is expired or not by predicated result, if result is true, then re-init resource. Could be null.
      * @return resource or null
@@ -77,6 +83,7 @@ public class SingleResourceThreadSafeIniter<Input, Result> {
                     if (cacheResourcePredicate.test(result)) {
                         optionalResult = Optional.ofNullable(result);
                         resultAtomicReference.set(optionalResult);
+                        resourceCleaned = false;
                         return result;
                     } else {
                         return null;
@@ -95,9 +102,13 @@ public class SingleResourceThreadSafeIniter<Input, Result> {
                     if (cacheResourcePredicate.test(result)) {
                         optionalResult = Optional.ofNullable(result);
                         resultAtomicReference.set(optionalResult);
+                        resourceCleaned = false;
                         return result;
                     } else {
                         log.warn("resource expired, but re-inited resource could not be cached");
+                        // if it could not be cached, clean expired resource
+                        resultAtomicReference.set(null);
+                        resourceCleaned = true;
                         return null;
                     }
                 }

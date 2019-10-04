@@ -54,7 +54,7 @@ public class MultipleResourcesThreadSafeIniter<Key, Input, Result> {
      *
      * @param key                      map key related to resource. Could NOT be null.
      * @param input                    parameter used for {@code resourceFunction}. Could be null.
-     * @param resourceFunction         function to init resource. Could NOT be null.
+     * @param resourceFunction         function to init resource, re-init resource, destroy expired resource. If new resource created after old resource expired and could not be cached, then resource will be cleaned. Could NOT be null.
      * @param cacheResourcePredicate   indicate whether to cache resource or not by predicated result. Could NOT be null.
      * @param resourceExpiredPredicate indicate whether the resource is expired or not by predicated result, if result is true, then re-init resource. Could be null.
      * @return resource or null
@@ -78,7 +78,14 @@ public class MultipleResourcesThreadSafeIniter<Key, Input, Result> {
                 singleResourceIniter = oldValue;
             }
         }
-        return singleResourceIniter.initAndGet(input, resourceFunction, cacheResourcePredicate, resourceExpiredPredicate);
+        Result result = singleResourceIniter.initAndGet(input, resourceFunction, cacheResourcePredicate, resourceExpiredPredicate);
+        if (!singleResourceIniter.isResourceCleaned()) {
+            return result;
+        } else {
+            // singleResourceIniter cleaned, clean related entry
+            resultMap.remove(key, singleResourceIniter);
+            return null;
+        }
     }
 
 }
