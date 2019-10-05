@@ -32,16 +32,16 @@ import org.junit.Test;
 import org.sandynz.sdcommons.concurrent.ExecutorServiceTestCfg;
 
 /**
- * {@link MultipleResourcesThreadSafeIniter} test cases.
+ * {@link MultipleResourcesInitializer} test cases.
  *
  * @author sandynz
  */
 @Slf4j
-public class MultipleResourcesThreadSafeIniterTest {
+public class MultipleResourcesInitializerTest {
 
     @Test
     public void testInitOnceAndGet() {
-        MultipleResourcesThreadSafeIniter<String, ExecutorServiceTestCfg, ExecutorService> initer = new MultipleResourcesThreadSafeIniter<>();
+        MultipleResourcesInitializer<String, ExecutorServiceTestCfg, ExecutorService> initer = new MultipleResourcesInitializer<>();
         for (int i = 1; i <= 3; i++) {
             String key = "k" + i;
             ExecutorServiceTestCfg cfg = new ExecutorServiceTestCfg(1, 10, 50);
@@ -67,7 +67,7 @@ public class MultipleResourcesThreadSafeIniterTest {
     }
 
     private void testInitAndGet0(Predicate<String> cacheResourcePredicate, Predicate<String> resourceExpiredPredicate) {
-        MultipleResourcesThreadSafeIniter<String, Void, String> initer = new MultipleResourcesThreadSafeIniter<>();
+        MultipleResourcesInitializer<String, Void, String> initer = new MultipleResourcesInitializer<>();
         int loopCount = 3;
         for (int i = 1; i <= loopCount; i++) {
             List<String> stringList = new ArrayList<>();

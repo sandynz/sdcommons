@@ -31,14 +31,14 @@ import lombok.extern.slf4j.Slf4j;
  * @author sandynz
  */
 @Slf4j
-public class MultipleResourcesThreadSafeIniter<Key, Input, Result> {
+public class MultipleResourcesInitializer<Key, Input, Result> {
 
-    private final ConcurrentMap<Key, SingleResourceThreadSafeIniter<Input, Result>> resultMap = new ConcurrentHashMap<>(16, 0.5F);
+    private final ConcurrentMap<Key, SingleResourceInitializer<Input, Result>> resultMap = new ConcurrentHashMap<>(16, 0.5F);
 
     /**
-     * Get resource, init or re-init resource if necessary.
+     * Get resource, init resource if necessary.
      * <p>
-     * Cache resource if it is null. Just init resource once globally for every key.
+     * Just init resource once for every key.
      *
      * @see #initAndGet(Object, Object, BiFunction, Predicate, Predicate)
      */
@@ -69,10 +69,10 @@ public class MultipleResourcesThreadSafeIniter<Key, Input, Result> {
         if (key == null || resourceFunction == null || cacheResourcePredicate == null) {
             throw new NullPointerException();
         }
-        SingleResourceThreadSafeIniter<Input, Result> singleResourceIniter = resultMap.get(key);
+        SingleResourceInitializer<Input, Result> singleResourceIniter = resultMap.get(key);
         if (singleResourceIniter == null) {
-            singleResourceIniter = new SingleResourceThreadSafeIniter<>();
-            SingleResourceThreadSafeIniter<Input, Result> oldValue = resultMap.putIfAbsent(key, singleResourceIniter);
+            singleResourceIniter = new SingleResourceInitializer<>();
+            SingleResourceInitializer<Input, Result> oldValue = resultMap.putIfAbsent(key, singleResourceIniter);
             log.info("singleResourceIniter null, key={}, oldValueIsNull={}", key, (oldValue == null));
             if (oldValue != null) {
                 singleResourceIniter = oldValue;

@@ -32,17 +32,17 @@ import org.junit.Test;
 import org.sandynz.sdcommons.concurrent.ExecutorServiceTestCfg;
 
 /**
- * {@link SingleResourceThreadSafeIniter} test cases.
+ * {@link SingleResourceInitializer} test cases.
  *
  * @author sandynz
  */
 @Slf4j
-public class SingleResourceThreadSafeIniterTest {
+public class SingleResourceInitializerTest {
 
     @Test
     public void testInitOnceAndGet() {
         ExecutorServiceTestCfg cfg = new ExecutorServiceTestCfg(1, 10, 50);
-        SingleResourceThreadSafeIniter<ExecutorServiceTestCfg, ExecutorService> initer = new SingleResourceThreadSafeIniter<>();
+        SingleResourceInitializer<ExecutorServiceTestCfg, ExecutorService> initer = new SingleResourceInitializer<>();
         AtomicReference<Boolean> inited = new AtomicReference<>(false);
         List<ExecutorService> executorServiceList = new ArrayList<>();
         for (int i = 1; i <= 3; i++) {
@@ -64,7 +64,7 @@ public class SingleResourceThreadSafeIniterTest {
     }
 
     private void testInitAndGet0(Predicate<String> cacheResourcePredicate, Predicate<String> resourceExpiredPredicate) {
-        SingleResourceThreadSafeIniter<Void, String> initer = new SingleResourceThreadSafeIniter<>();
+        SingleResourceInitializer<Void, String> initer = new SingleResourceInitializer<>();
         List<String> stringList = new ArrayList<>();
         int loopCount = 3;
         AtomicInteger initCount = new AtomicInteger();

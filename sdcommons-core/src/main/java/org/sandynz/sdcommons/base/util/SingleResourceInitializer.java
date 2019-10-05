@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author sandynz
  */
 @Slf4j
-public class SingleResourceThreadSafeIniter<Input, Result> {
+public class SingleResourceInitializer<Input, Result> {
 
     private final AtomicReference<Optional<Result>> resultAtomicReference = new AtomicReference<>();
 
@@ -41,9 +41,9 @@ public class SingleResourceThreadSafeIniter<Input, Result> {
     }
 
     /**
-     * Get resource, init or re-init resource if necessary.
+     * Get resource, init resource if necessary.
      * <p>
-     * Cache resource if it is null. Just init resource once globally.
+     * Just init resource once.
      *
      * @see #initAndGet(Object, BiFunction, Predicate, Predicate)
      */
