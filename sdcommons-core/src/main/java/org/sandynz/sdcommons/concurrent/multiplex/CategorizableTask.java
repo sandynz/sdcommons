@@ -16,14 +16,13 @@
  */
 package org.sandynz.sdcommons.concurrent.multiplex;
 
-import java.util.concurrent.Callable;
-
 /**
- * Multiplex {@link Callable}.
+ * Task that could be categorized.
  *
- * @param <V> result type of method {@code call}
  * @author sandynz
  */
-public interface MultiplexCallable<V> extends Callable<V>, CategorizableTask {
+public interface CategorizableTask {
+
+    String getTaskCategory();
 
 }

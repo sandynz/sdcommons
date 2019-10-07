@@ -19,8 +19,12 @@ package org.sandynz.sdcommons.base.statistic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.ReentrantLock;
+import lombok.extern.slf4j.Slf4j;
+import org.sandynz.sdcommons.base.lang.Identifiable;
 import org.sandynz.sdcommons.base.statistic.util.AssertUtil;
 import org.sandynz.sdcommons.base.statistic.util.TimeUtil;
 
@@ -38,8 +42,10 @@ import org.sandynz.sdcommons.base.statistic.util.TimeUtil;
  * @author jialiang.linjl
  * @author Eric Zhao
  * @author Carpenter Lee
+ * @author sandynz
  */
-public abstract class LeapArray<T> {
+@Slf4j
+public abstract class LeapArray<T, Id> implements Identifiable<Id> {
 
     protected int windowLengthInMs;
     protected int sampleCount;
@@ -51,6 +57,10 @@ public abstract class LeapArray<T> {
      * The conditional (predicate) update lock is used only when current bucket is deprecated.
      */
     private final ReentrantLock updateLock = new ReentrantLock();
+
+    private final Set<LeapArrayListener<Id>> listenerSet = new CopyOnWriteArraySet<>();
+
+    private volatile Id identifier;
 
     /**
      * The total bucket count is: {@code sampleCount = intervalInMs / windowLengthInMs}.
@@ -68,6 +78,27 @@ public abstract class LeapArray<T> {
         this.sampleCount = sampleCount;
 
         this.array = new AtomicReferenceArray<>(sampleCount);
+    }
+
+    public void addListener(LeapArrayListener<Id> listener) {
+        this.listenerSet.add(listener);
+    }
+
+    public boolean removeListener(LeapArrayListener<Id> listener) {
+        return this.listenerSet.remove(listener);
+    }
+
+    @Override
+    public Id getIdentifier() {
+        return identifier;
+    }
+
+    @Override
+    public void setIdentifier(Id identifier) {
+        if (identifier == null) {
+            throw new NullPointerException("identifier null");
+        }
+        this.identifier = identifier;
     }
 
     /**
@@ -99,7 +130,7 @@ public abstract class LeapArray<T> {
     private int calculateTimeIdx(/*@Valid*/ long timeMillis) {
         long timeId = timeMillis / windowLengthInMs;
         // Calculate current index so we can map the timestamp to the leap array.
-        return (int)(timeId % array.length());
+        return (int) (timeId % array.length());
     }
 
     protected long calculateWindowStart(/*@Valid*/ long timeMillis) {
@@ -149,6 +180,7 @@ public abstract class LeapArray<T> {
                     return window;
                 } else {
                     // Contention failed, the thread will yield its time slice to wait for bucket available.
+                    //TODO
                     Thread.yield();
                 }
             } else if (windowStart == old.windowStart()) {
@@ -184,6 +216,14 @@ public abstract class LeapArray<T> {
                  */
                 if (updateLock.tryLock()) {
                     try {
+                        for (LeapArrayListener<Id> listener : this.listenerSet) {
+                            try {
+                                listener.bucketDeprecatedAndBeforeReset(this.identifier);
+                            } catch (Throwable throwable) {
+                                log.error("bucketDeprecatedAndBeforeReset ex caught", throwable);
+                                // ignore
+                            }
+                        }
                         // Successfully get the update lock, now we reset the bucket.
                         return resetWindowTo(old, windowStart);
                     } finally {
@@ -191,6 +231,7 @@ public abstract class LeapArray<T> {
                     }
                 } else {
                     // Contention failed, the thread will yield its time slice to wait for bucket available.
+                    //TODO
                     Thread.yield();
                 }
             } else if (windowStart < old.windowStart()) {
@@ -407,13 +448,4 @@ public abstract class LeapArray<T> {
         System.out.println(sb.toString());
     }
 
-    public long currentWaiting() {
-        // TODO: default method. Should remove this later.
-        return 0;
-    }
-
-    public void addWaiting(long time, int acquireCount) {
-        // Do nothing by default.
-        throw new UnsupportedOperationException();
-    }
 }

@@ -16,14 +16,17 @@
  */
 package org.sandynz.sdcommons.concurrent.multiplex;
 
-import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
- * Multiplex {@link Callable}.
+ * Select {@link ExecutorService} context, designed for {@link ExecutorServiceSelector#select(MultiplexRunnable, SelectExecutorServiceContext)}.
  *
- * @param <V> result type of method {@code call}
  * @author sandynz
  */
-public interface MultiplexCallable<V> extends Callable<V>, CategorizableTask {
+@Data
+@Accessors(chain = true)
+public class SelectExecutorServiceContext {
 
 }

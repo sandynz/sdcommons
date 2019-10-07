@@ -16,6 +16,11 @@
  */
 package org.sandynz.sdcommons.concurrent.multiplex;
 
-public interface MultiplexRunnable extends Runnable, TaskCategorizable {
+/**
+ * Multiplex {@link Runnable}.
+ *
+ * @author sandynz
+ */
+public interface MultiplexRunnable extends Runnable, CategorizableTask {
 
 }

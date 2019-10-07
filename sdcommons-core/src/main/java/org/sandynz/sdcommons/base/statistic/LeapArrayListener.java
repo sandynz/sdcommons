@@ -14,10 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.sdcommons.concurrent.multiplex;
+package org.sandynz.sdcommons.base.statistic;
 
-public interface TaskCategorizable {
+/**
+ * {@link LeapArray} listener for observers.
+ *
+ * @param <Id> type of identifier
+ * @author sandynz
+ */
+public interface LeapArrayListener<Id> {
 
-    String getTaskCategory();
+    /**
+     * @param identifier {@linkplain LeapArray}'s identifier
+     */
+    void bucketDeprecatedAndBeforeReset(Id identifier);
 
 }

@@ -19,9 +19,14 @@ package org.sandynz.sdcommons.concurrent.multiplex;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 
-public interface ExecutorServiceSelector extends Iterable<ExecutorService> {
+/**
+ * {@link ExecutorService} selector, designed for {@link MultiplexExecutorService}.
+ *
+ * @author sandynz
+ */
+public interface ExecutorServiceSelector extends Iterable<ExecutorService>, MultiplexRunnableListener {
 
-    ExecutorService select(MultiplexRunnable runnable);
+    ExecutorService select(MultiplexRunnable runnable, SelectExecutorServiceContext ctx);
 
     @Override
     Iterator<ExecutorService> iterator();

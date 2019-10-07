@@ -14,26 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.sdcommons.concurrent.multiplex;
+package org.sandynz.sdcommons.base.lang;
 
-import java.util.concurrent.FutureTask;
+/**
+ * It could be used to identify instances.
+ *
+ * @param <Id> the identifier type
+ * @author sandynz
+ */
+public interface Identifiable<Id> {
 
-public class MultiplexFutureTask<V> extends FutureTask<V> implements MultiplexRunnableFuture<V> {
+    /**
+     * Get identifier.
+     *
+     * @return actual identifier, it is better to be unique globally.
+     */
+    Id getIdentifier();
 
-    private final TaskCategorizable taskCategorizable;
-
-    public MultiplexFutureTask(MultiplexCallable callable) {
-        super(callable);
-        this.taskCategorizable = callable;
+    /**
+     * Set identifier.
+     * <p>
+     * It could be empty, e.g. identifier is initialized by constructor.
+     *
+     * @throws NullPointerException if {@code identifier} parameter is null
+     */
+    default void setIdentifier(Id identifier) {
     }
 
-    public MultiplexFutureTask(MultiplexRunnable runnable, V result) {
-        super(runnable, result);
-        this.taskCategorizable = runnable;
-    }
-
-    @Override
-    public String getTaskCategory() {
-        return taskCategorizable.getTaskCategory();
-    }
 }

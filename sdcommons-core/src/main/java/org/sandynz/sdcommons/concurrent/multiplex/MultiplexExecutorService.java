@@ -26,8 +26,18 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
+import org.sandynz.sdcommons.concurrent.multiplex.internal.MultiplexFutureTask;
+import org.sandynz.sdcommons.concurrent.multiplex.internal.MultiplexRunnableFuture;
 
-public class MultiplexExecutorService extends AbstractExecutorService {
+/**
+ * Multiplex {@link ExecutorService}.
+ * TODO
+ *
+ * @author sandynz
+ */
+@Slf4j
+public class MultiplexExecutorService extends AbstractExecutorService implements MultiplexRunnableListener {
 
     private final ExecutorServiceSelector executorServiceSelector;
 
@@ -78,11 +88,11 @@ public class MultiplexExecutorService extends AbstractExecutorService {
     }
 
     private <T> MultiplexRunnableFuture<T> wrapTask(MultiplexRunnable runnable, T value) {
-        return new MultiplexFutureTask<T>(runnable, value);
+        return new MultiplexFutureTask<>(runnable, value);
     }
 
-    private <T> MultiplexRunnableFuture<T> wrapTask(MultiplexCallable callable) {
-        return new MultiplexFutureTask<T>(callable);
+    private <T> MultiplexRunnableFuture<T> wrapTask(MultiplexCallable<T> callable) {
+        return new MultiplexFutureTask<>(callable);
     }
 
     /**
@@ -101,7 +111,7 @@ public class MultiplexExecutorService extends AbstractExecutorService {
             throw new RejectedExecutionException("command is not instance of MultiplexCallable");
         }
 
-        RunnableFuture<T> runnableFuture = wrapTask((MultiplexCallable) task);
+        RunnableFuture<T> runnableFuture = wrapTask((MultiplexCallable<T>) task);
         execute(runnableFuture);
         return runnableFuture;
     }
@@ -145,6 +155,51 @@ public class MultiplexExecutorService extends AbstractExecutorService {
         }
     }
 
+    private static class ListenableTask implements Runnable {
+
+        private final MultiplexRunnable runnable;
+        private final MultiplexRunnableListener[] runnableListeners;
+
+        ListenableTask(MultiplexRunnable runnable, MultiplexRunnableListener... runnableListeners) {
+            this.runnable = runnable;
+            this.runnableListeners = runnableListeners;
+        }
+
+        @Override
+        public void run() {
+            MultiplexRunnableListener[] runnableListeners = this.runnableListeners;
+            Object[] attachments = new Object[runnableListeners.length];
+            int index = 0;
+            for (MultiplexRunnableListener listener : runnableListeners) {
+                Object beforeRet;
+                try {
+                    beforeRet = listener.beforeExecute(Thread.currentThread(), this.runnable);
+                } catch (Throwable throwable) {
+                    beforeRet = throwable;
+                }
+                attachments[index++] = beforeRet;
+            }
+            try {
+                this.runnable.run();
+                index = 0;
+                for (MultiplexRunnableListener listener : runnableListeners) {
+                    listener.afterExecute(this.runnable, null, attachments[index++]);
+                }
+            } catch (Throwable throwable) {
+                index = 0;
+                for (MultiplexRunnableListener listener : runnableListeners) {
+                    try {
+                        listener.afterExecute(this.runnable, throwable, attachments[index++]);
+                    } catch (Throwable e) {
+                        log.error("afterExecute ex caught", e);
+                        // ignore
+                    }
+                }
+                throw throwable;
+            }
+        }
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -155,10 +210,12 @@ public class MultiplexExecutorService extends AbstractExecutorService {
     @Override
     public void execute(Runnable command) {
         verifyRunnable(command);
-        Executor executor = executorServiceSelector.select((MultiplexRunnable) command);
+        SelectExecutorServiceContext ctx = new SelectExecutorServiceContext();
+        Executor executor = this.executorServiceSelector.select((MultiplexRunnable) command, ctx);
         if (executor == null) {
             throw new RejectedExecutionException("selected executor is null");
         }
-        executor.execute(command);
+        executor.execute(new ListenableTask((MultiplexRunnable) command, this, this.executorServiceSelector));
     }
+
 }
