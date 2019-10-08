@@ -18,6 +18,7 @@ package org.sandynz.sdcommons.concurrent.multiplex.internal;
 
 import java.util.concurrent.FutureTask;
 import org.sandynz.sdcommons.concurrent.multiplex.CategorizableTask;
+import org.sandynz.sdcommons.concurrent.multiplex.CategorizableTaskCfg;
 import org.sandynz.sdcommons.concurrent.multiplex.MultiplexCallable;
 import org.sandynz.sdcommons.concurrent.multiplex.MultiplexRunnable;
 
@@ -42,7 +43,7 @@ public class MultiplexFutureTask<V> extends FutureTask<V> implements MultiplexRu
     }
 
     @Override
-    public String getTaskCategory() {
-        return taskCategorizable.getTaskCategory();
+    public CategorizableTaskCfg getCategorizableTaskCfg() {
+        return taskCategorizable.getCategorizableTaskCfg();
     }
 }

@@ -23,6 +23,9 @@ package org.sandynz.sdcommons.concurrent.multiplex;
  */
 public interface CategorizableTask {
 
-    String getTaskCategory();
+    /**
+     * @return {@link CategorizableTaskCfg}. Could NOT be null.
+     */
+    CategorizableTaskCfg getCategorizableTaskCfg();
 
 }

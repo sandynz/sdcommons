@@ -16,17 +16,43 @@
  */
 package org.sandynz.sdcommons.concurrent.multiplex;
 
-import java.util.concurrent.ExecutorService;
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang3.StringUtils;
 
 /**
- * Select {@link ExecutorService} context, designed for {@link ExecutorServiceSelector#select(MultiplexRunnable, SelectExecutorServiceContext)}.
+ * {@link CategorizableTask} configuration.
  *
  * @author sandynz
  */
 @Data
 @Accessors(chain = true)
-public class SelectExecutorServiceContext {
+@ToString
+public class CategorizableTaskCfg {
 
+    /**
+     * Task category.
+     * Could NOT be blank.
+     */
+    private String taskCategory;
+    /**
+     * Task priority.
+     * Range: [1,10]. The greater the higher.
+     */
+    private int taskPriority;
+
+    public void setTaskCategory(String taskCategory) {
+        if (StringUtils.isBlank(taskCategory)) {
+            throw new IllegalArgumentException("taskCategory blank");
+        }
+        this.taskCategory = taskCategory;
+    }
+
+    public void setTaskPriority(int taskPriority) {
+        if (taskPriority < 1 || taskPriority > 10) {
+            throw new IllegalArgumentException("invalid taskPriority=" + taskPriority);
+        }
+        this.taskPriority = taskPriority;
+    }
 }

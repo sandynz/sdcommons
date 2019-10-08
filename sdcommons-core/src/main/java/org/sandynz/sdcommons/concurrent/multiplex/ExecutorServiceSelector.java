@@ -26,7 +26,7 @@ import java.util.concurrent.ExecutorService;
  */
 public interface ExecutorServiceSelector extends Iterable<ExecutorService>, MultiplexRunnableListener {
 
-    ExecutorService select(MultiplexRunnable runnable, SelectExecutorServiceContext ctx);
+    ExecutorService select(MultiplexRunnable runnable);
 
     @Override
     Iterator<ExecutorService> iterator();

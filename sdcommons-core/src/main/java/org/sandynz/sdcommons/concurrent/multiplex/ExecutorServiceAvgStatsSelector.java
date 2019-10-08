@@ -21,6 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import lombok.Data;
+import lombok.experimental.Accessors;
 import org.sandynz.sdcommons.base.statistic.LeapArrayCfg;
 import org.sandynz.sdcommons.base.statistic.LeapArrayListener;
 import org.sandynz.sdcommons.base.util.MultipleResourcesInitializer;
@@ -34,29 +36,45 @@ import org.sandynz.sdcommons.concurrent.multiplex.internal.TaskCallAvgStatsLeapA
  */
 public class ExecutorServiceAvgStatsSelector implements ExecutorServiceSelector {
 
+    @Data
+    @Accessors(chain = true)
+    public static class Builder {
+
+        private ExecutorConstructionCfg executorConstructionCfg;
+        private LeapArrayCfg leapArrayCfg;
+
+        public ExecutorServiceAvgStatsSelector build() {
+            return new ExecutorServiceAvgStatsSelector(this);
+        }
+    }
+
     private final ExecutorConstructionCfg executorConstructionCfg;
+
+    private final LeapArrayCfg leapArrayCfg;
 
     private final String defaultTaskCategory = "__DEFAULT__";
 
     private final MultipleResourcesInitializer<String/*taskCategory*/, LeapArrayCfg, TaskCallAvgStatsLeapArray> taskCategoryLeapArrayInitializer;
 
-    private volatile LeapArrayCfg leapArrayCfg = new LeapArrayCfg(10, TimeUnit.SECONDS, 80);
-
     private final ConcurrentMap<String/*taskCategory*/, TaskCallAvgStatsLeapArray.StatsResult> taskCategoryStatsResultMap;
 
-    public ExecutorServiceAvgStatsSelector(ExecutorConstructionCfg executorConstructionCfg) {
-        this.executorConstructionCfg = executorConstructionCfg;
+    private ExecutorServiceAvgStatsSelector(Builder builder) {
+        if (builder.executorConstructionCfg == null) {
+            throw new NullPointerException("executorConstructionCfg null");
+        }
+        this.executorConstructionCfg = builder.executorConstructionCfg;
+        if (builder.leapArrayCfg != null) {
+            this.leapArrayCfg = builder.leapArrayCfg;
+        } else {
+            this.leapArrayCfg = new LeapArrayCfg(10, TimeUnit.SECONDS, 80);
+        }
 
         this.taskCategoryLeapArrayInitializer = new MultipleResourcesInitializer<>();
         this.taskCategoryStatsResultMap = new ConcurrentHashMap<>();
     }
 
-    public ExecutorServiceAvgStatsSelector setLeapArrayCfg(LeapArrayCfg leapArrayCfg) {
-        if (leapArrayCfg == null) {
-            throw new NullPointerException("leapArrayCfg null");
-        }
-        this.leapArrayCfg = leapArrayCfg;
-        return this;
+    public static Builder builder() {
+        return new Builder();
     }
 
     @Override
@@ -69,7 +87,7 @@ public class ExecutorServiceAvgStatsSelector implements ExecutorServiceSelector 
         Long t1 = (Long) beforeExecuteAttachment;
         long timeMillis = System.currentTimeMillis();
         long rt = timeMillis - t1;
-        String taskCategory = runnable.getTaskCategory();
+        String taskCategory = runnable.getCategorizableTaskCfg().getTaskCategory();
         TaskCallAvgStatsLeapArray leapArray = getLeapArray(taskCategory);
         leapArray.currentWindow(timeMillis).value().addAll(rt);
     }
@@ -97,8 +115,10 @@ public class ExecutorServiceAvgStatsSelector implements ExecutorServiceSelector 
     }
 
     @Override
-    public ExecutorService select(MultiplexRunnable runnable, SelectExecutorServiceContext ctx) {
-        String taskCategory = runnable.getTaskCategory();
+    public ExecutorService select(MultiplexRunnable runnable) {
+        CategorizableTaskCfg categorizableTaskCfg = runnable.getCategorizableTaskCfg();
+        String taskCategory = categorizableTaskCfg.getTaskCategory();
+        int taskPriority = categorizableTaskCfg.getTaskPriority();
         TaskCallAvgStatsLeapArray.StatsResult statsResult = this.taskCategoryStatsResultMap.get(taskCategory);
         return null;//TODO
     }
