@@ -32,6 +32,7 @@ public class Validations {
 
     public static <T> boolean validateBean(T bean) {
         Set<ConstraintViolation<T>> constraintViolations = VALIDATOR.validate(bean);
+        //TODO
         System.out.println("constraintViolations=" + constraintViolations);
         return constraintViolations.isEmpty();
     }

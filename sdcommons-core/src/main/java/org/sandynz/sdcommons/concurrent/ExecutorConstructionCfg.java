@@ -21,9 +21,13 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.sandynz.sdcommons.validation.Validations;
 
 /**
  * Configuration used to create {@link java.util.concurrent.Executor}.
@@ -35,50 +39,123 @@ import lombok.experimental.Accessors;
 @ToString
 public class ExecutorConstructionCfg {
 
+    @Data
+    @Accessors(chain = true)
+    @ToString
+    public static class Builder {
+
+        @Min(0)
+        private int corePoolSize;
+        @Min(1)
+        private int maxPoolSize;
+        @Min(1)
+        private long keepAliveTime = 60L;
+        @NotNull
+        private TimeUnit unit = TimeUnit.SECONDS;
+        @NotNull
+        private QueueCfg queueCfg;
+        @NotBlank
+        private String threadNamePrefix = "pool-";
+        private ExecutorAddWorkerStrategy addWorkerStrategy;
+        private Function<QueueCfg, BlockingQueue<Runnable>> createQueueFunction;
+
+        public ExecutorConstructionCfg build() {
+            return new ExecutorConstructionCfg(this);
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     private final int corePoolSize;
+    //TODO adaptiveMaxPoolSizeEnabled; adaptiveMaxPoolSizeBurstPercentage;
     private final int maxPoolSize;
-    private long keepAliveTime = 60L;
-    private TimeUnit unit = TimeUnit.SECONDS;
+    private final long keepAliveTime;
+    private final TimeUnit unit;
 
     private final QueueCfg queueCfg;
 
-    private String threadNamePrefix = "pool-";
+    private final String threadNamePrefix;
 
-    private ExecutorAddWorkerStrategy addWorkerStrategy;
+    private final ExecutorAddWorkerStrategy addWorkerStrategy;
+
+    private final Function<QueueCfg, BlockingQueue<Runnable>> createQueueFunction;
+
+    private ExecutorConstructionCfg(Builder builder) {
+        boolean validateRet = Validations.validateBean(builder);
+        if (!validateRet) {
+            throw new IllegalArgumentException("invalid settings");
+        }
+
+        this.corePoolSize = builder.corePoolSize;
+        this.maxPoolSize = builder.maxPoolSize;
+        this.keepAliveTime = builder.keepAliveTime;
+        this.unit = builder.unit;
+        this.queueCfg = builder.queueCfg;
+        this.threadNamePrefix = builder.threadNamePrefix;
+        if (builder.addWorkerStrategy != null) {
+            this.addWorkerStrategy = builder.addWorkerStrategy;
+        } else {
+            //TODO
+            this.addWorkerStrategy = new ExecutorAddWorkerEagerStrategy();
+        }
+        if (builder.createQueueFunction != null) {
+            this.createQueueFunction = builder.createQueueFunction;
+        } else {
+            this.createQueueFunction = cfg -> {
+                if (cfg.bounded) {
+                    if (cfg.initialCapacity <= 100 && !cfg.preferHigherThroughput) {
+                        return new ArrayBlockingQueue<>(cfg.initialCapacity);
+                    } else {
+                        return new LinkedBlockingQueue<>(cfg.initialCapacity);
+                    }
+                } else {
+                    return new LinkedBlockingQueue<>();
+                }
+            };
+        }
+    }
 
     @Data
     @Accessors(chain = true)
     @ToString
     public static class QueueCfg {
 
-        private boolean bounded = true;
-        private int capacity = 1000;
-        private boolean preferHigherThroughput = true;
+        @Data
+        @Accessors(chain = true)
+        @ToString
+        public static class Builder {
 
-        public void setCapacity(int capacity) {
-            if (capacity <= 0) {
-                throw new IllegalArgumentException("capacity le 0");
+            private boolean bounded = true;
+            @Min(1)
+            private int initialCapacity = 1000;
+            private boolean preferHigherThroughput = true;
+
+            public QueueCfg build() {
+                return new QueueCfg(this);
             }
-            this.capacity = capacity;
         }
-    }
 
-    private Function<QueueCfg, BlockingQueue<Runnable>> createQueueFunction = cfg -> {
-        if (cfg.bounded) {
-            if (cfg.capacity <= 100 && !cfg.preferHigherThroughput) {
-                return new ArrayBlockingQueue<>(cfg.capacity);
-            } else {
-                return new LinkedBlockingQueue<>(cfg.capacity);
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        private final boolean bounded;
+        //TODO adaptiveCapacityEnabled; adaptiveCapacityRange;
+        private final int initialCapacity;
+        private final boolean preferHigherThroughput;
+
+        private QueueCfg(Builder builder) {
+            boolean validateRet = Validations.validateBean(builder);
+            if (!validateRet) {
+                throw new IllegalArgumentException("invalid settings");
             }
-        } else {
-            return new LinkedBlockingQueue<>();
-        }
-    };
 
-    public ExecutorConstructionCfg(int corePoolSize, int maxPoolSize, QueueCfg queueCfg) {
-        this.corePoolSize = corePoolSize;
-        this.maxPoolSize = maxPoolSize;
-        this.queueCfg = queueCfg;
+            this.bounded = builder.bounded;
+            this.initialCapacity = builder.initialCapacity;
+            this.preferHigherThroughput = builder.preferHigherThroughput;
+        }
     }
 
 }

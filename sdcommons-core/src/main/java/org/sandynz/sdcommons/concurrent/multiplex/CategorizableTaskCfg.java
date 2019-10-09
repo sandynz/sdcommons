@@ -16,10 +16,14 @@
  */
 package org.sandynz.sdcommons.concurrent.multiplex;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-import org.apache.commons.lang3.StringUtils;
+import org.sandynz.sdcommons.validation.Validations;
 
 /**
  * {@link CategorizableTask} configuration.
@@ -31,28 +35,58 @@ import org.apache.commons.lang3.StringUtils;
 @ToString
 public class CategorizableTaskCfg {
 
+    public static final int PRIORITY_MIN = 1;
+    public static final int PRIORITY_MAX = 10;
+    public static final int PRIORITY_MID = 5;
+
+    @Data
+    @Accessors(chain = true)
+    @ToString
+    public static class Builder {
+
+        @NotBlank
+        private String taskCategory;
+        @NotNull
+        @Size(min = PRIORITY_MID, max = PRIORITY_MAX)
+        private Integer taskPriority;
+        @NotNull
+        @Min(1)
+        private Long upstreamTimeoutMillis;
+
+        public CategorizableTaskCfg build() {
+            return new CategorizableTaskCfg(this);
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     /**
      * Task category.
      * Could NOT be blank.
      */
-    private String taskCategory;
+    private final String taskCategory;
     /**
      * Task priority.
      * Range: [1,10]. The greater the higher.
      */
-    private int taskPriority;
+    private final int taskPriority;
+    /**
+     * Upstream (e.g. gateway, micro-service invoker) timeout in millis.
+     * Example values: 3000, 8000.
+     */
+    private final long upstreamTimeoutMillis;
 
-    public void setTaskCategory(String taskCategory) {
-        if (StringUtils.isBlank(taskCategory)) {
-            throw new IllegalArgumentException("taskCategory blank");
+    private CategorizableTaskCfg(Builder builder) {
+        boolean validateRet = Validations.validateBean(builder);
+        if (!validateRet) {
+            throw new IllegalArgumentException("invalid settings");
         }
-        this.taskCategory = taskCategory;
+
+        this.taskCategory = builder.taskCategory;
+        this.taskPriority = builder.taskPriority;
+        this.upstreamTimeoutMillis = builder.upstreamTimeoutMillis;
     }
 
-    public void setTaskPriority(int taskPriority) {
-        if (taskPriority < 1 || taskPriority > 10) {
-            throw new IllegalArgumentException("invalid taskPriority=" + taskPriority);
-        }
-        this.taskPriority = taskPriority;
-    }
 }
