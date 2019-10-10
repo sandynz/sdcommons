@@ -14,17 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.sdcommons.concurrent.multiplex.internal;
-
-import java.util.concurrent.RunnableFuture;
-import org.sandynz.sdcommons.concurrent.multiplex.MultiplexRunnable;
+package org.sandynz.sdcommons.concurrent.adaptive;
 
 /**
- * Multiplex {@linkplain RunnableFuture}.
+ * Adaptive {@link Runnable}.
  *
- * @param <V> result type returned by this {@code get} methods
  * @author sandynz
  */
-public interface MultiplexRunnableFuture<V> extends RunnableFuture<V>, MultiplexRunnable {
+public interface AdaptiveRunnable extends Runnable, AdaptiveTask {
 
 }

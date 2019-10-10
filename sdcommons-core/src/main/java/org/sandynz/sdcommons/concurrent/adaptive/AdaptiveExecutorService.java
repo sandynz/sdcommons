@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.sdcommons.concurrent.multiplex;
+package org.sandynz.sdcommons.concurrent.adaptive;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,21 +27,21 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
-import org.sandynz.sdcommons.concurrent.multiplex.internal.MultiplexFutureTask;
-import org.sandynz.sdcommons.concurrent.multiplex.internal.MultiplexRunnableFuture;
+import org.sandynz.sdcommons.concurrent.adaptive.internal.AdaptiveFutureTask;
+import org.sandynz.sdcommons.concurrent.adaptive.internal.AdaptiveRunnableFuture;
 
 /**
- * Multiplex {@link ExecutorService}.
+ * Adaptive {@link ExecutorService}.
  * TODO
  *
  * @author sandynz
  */
 @Slf4j
-public class MultiplexExecutorService extends AbstractExecutorService implements MultiplexRunnableListener {
+public class AdaptiveExecutorService extends AbstractExecutorService implements AdaptiveRunnableListener {
 
     private final ExecutorServiceSelector executorServiceSelector;
 
-    public MultiplexExecutorService(ExecutorServiceSelector executorServiceSelector) {
+    public AdaptiveExecutorService(ExecutorServiceSelector executorServiceSelector) {
         this.executorServiceSelector = executorServiceSelector;
     }
 
@@ -87,18 +87,18 @@ public class MultiplexExecutorService extends AbstractExecutorService implements
         return true;
     }
 
-    private <T> MultiplexRunnableFuture<T> wrapTask(MultiplexRunnable runnable, T value) {
-        return new MultiplexFutureTask<>(runnable, value);
+    private <T> AdaptiveRunnableFuture<T> wrapTask(AdaptiveRunnable runnable, T value) {
+        return new AdaptiveFutureTask<>(runnable, value);
     }
 
-    private <T> MultiplexRunnableFuture<T> wrapTask(MultiplexCallable<T> callable) {
-        return new MultiplexFutureTask<>(callable);
+    private <T> AdaptiveRunnableFuture<T> wrapTask(AdaptiveCallable<T> callable) {
+        return new AdaptiveFutureTask<>(callable);
     }
 
     /**
      * {@inheritDoc}
      *
-     * @param task must be instance of {@link MultiplexCallable}
+     * @param task must be instance of {@link AdaptiveCallable}
      * @throws RejectedExecutionException {@inheritDoc}
      * @throws NullPointerException       {@inheritDoc}
      */
@@ -107,11 +107,11 @@ public class MultiplexExecutorService extends AbstractExecutorService implements
         if (task == null) {
             throw new NullPointerException();
         }
-        if (!(task instanceof MultiplexCallable)) {
-            throw new RejectedExecutionException("command is not instance of MultiplexCallable");
+        if (!(task instanceof AdaptiveCallable)) {
+            throw new RejectedExecutionException("command is not instance of AdaptiveCallable");
         }
 
-        RunnableFuture<T> runnableFuture = wrapTask((MultiplexCallable<T>) task);
+        RunnableFuture<T> runnableFuture = wrapTask((AdaptiveCallable<T>) task);
         execute(runnableFuture);
         return runnableFuture;
     }
@@ -119,14 +119,14 @@ public class MultiplexExecutorService extends AbstractExecutorService implements
     /**
      * {@inheritDoc}
      *
-     * @param task must be instance of {@link MultiplexRunnable}
+     * @param task must be instance of {@link AdaptiveRunnable}
      * @throws RejectedExecutionException {@inheritDoc}
      * @throws NullPointerException       {@inheritDoc}
      */
     @Override
     public <T> Future<T> submit(Runnable task, T result) {
         verifyRunnable(task);
-        RunnableFuture<T> runnableFuture = wrapTask((MultiplexRunnable) task, result);
+        RunnableFuture<T> runnableFuture = wrapTask((AdaptiveRunnable) task, result);
         execute(runnableFuture);
         return runnableFuture;
     }
@@ -134,14 +134,14 @@ public class MultiplexExecutorService extends AbstractExecutorService implements
     /**
      * {@inheritDoc}
      *
-     * @param task must be instance of {@link MultiplexRunnable}
+     * @param task must be instance of {@link AdaptiveRunnable}
      * @throws RejectedExecutionException {@inheritDoc}
      * @throws NullPointerException       {@inheritDoc}
      */
     @Override
     public Future<?> submit(Runnable task) {
         verifyRunnable(task);
-        RunnableFuture<Void> runnableFuture = wrapTask((MultiplexRunnable) task, null);
+        RunnableFuture<Void> runnableFuture = wrapTask((AdaptiveRunnable) task, null);
         execute(runnableFuture);
         return runnableFuture;
     }
@@ -150,27 +150,27 @@ public class MultiplexExecutorService extends AbstractExecutorService implements
         if (task == null) {
             throw new NullPointerException();
         }
-        if (!(task instanceof MultiplexRunnable)) {
-            throw new RejectedExecutionException("command is not instance of MultiplexRunnable");
+        if (!(task instanceof AdaptiveRunnable)) {
+            throw new RejectedExecutionException("command is not instance of AdaptiveRunnable");
         }
     }
 
     private static class ListenableTask implements Runnable {
 
-        private final MultiplexRunnable runnable;
-        private final MultiplexRunnableListener[] runnableListeners;
+        private final AdaptiveRunnable runnable;
+        private final AdaptiveRunnableListener[] runnableListeners;
 
-        ListenableTask(MultiplexRunnable runnable, MultiplexRunnableListener... runnableListeners) {
+        ListenableTask(AdaptiveRunnable runnable, AdaptiveRunnableListener... runnableListeners) {
             this.runnable = runnable;
             this.runnableListeners = runnableListeners;
         }
 
         @Override
         public void run() {
-            MultiplexRunnableListener[] runnableListeners = this.runnableListeners;
+            AdaptiveRunnableListener[] runnableListeners = this.runnableListeners;
             Object[] attachments = new Object[runnableListeners.length];
             int index = 0;
-            for (MultiplexRunnableListener listener : runnableListeners) {
+            for (AdaptiveRunnableListener listener : runnableListeners) {
                 Object beforeRet;
                 try {
                     beforeRet = listener.beforeExecute(Thread.currentThread(), this.runnable);
@@ -182,12 +182,12 @@ public class MultiplexExecutorService extends AbstractExecutorService implements
             try {
                 this.runnable.run();
                 index = 0;
-                for (MultiplexRunnableListener listener : runnableListeners) {
+                for (AdaptiveRunnableListener listener : runnableListeners) {
                     listener.afterExecute(this.runnable, null, attachments[index++]);
                 }
             } catch (Throwable throwable) {
                 index = 0;
-                for (MultiplexRunnableListener listener : runnableListeners) {
+                for (AdaptiveRunnableListener listener : runnableListeners) {
                     try {
                         listener.afterExecute(this.runnable, throwable, attachments[index++]);
                     } catch (Throwable e) {
@@ -203,19 +203,18 @@ public class MultiplexExecutorService extends AbstractExecutorService implements
     /**
      * {@inheritDoc}
      *
-     * @param command must be instance of {@link MultiplexRunnable}
+     * @param command must be instance of {@link AdaptiveRunnable}
      * @throws RejectedExecutionException {@inheritDoc}
      * @throws NullPointerException       {@inheritDoc}
      */
     @Override
     public void execute(Runnable command) {
         verifyRunnable(command);
-        SelectExecutorServiceContext ctx = new SelectExecutorServiceContext();
-        Executor executor = this.executorServiceSelector.select((MultiplexRunnable) command, ctx);
+        Executor executor = this.executorServiceSelector.select((AdaptiveRunnable) command);
         if (executor == null) {
             throw new RejectedExecutionException("selected executor is null");
         }
-        executor.execute(new ListenableTask((MultiplexRunnable) command, this, this.executorServiceSelector));
+        executor.execute(new ListenableTask((AdaptiveRunnable) command, this, this.executorServiceSelector));
     }
 
 }

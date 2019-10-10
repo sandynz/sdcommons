@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.sdcommons.concurrent.multiplex.internal;
+package org.sandynz.sdcommons.concurrent.adaptive.internal;
 
 import java.util.concurrent.atomic.LongAdder;
 import lombok.Data;

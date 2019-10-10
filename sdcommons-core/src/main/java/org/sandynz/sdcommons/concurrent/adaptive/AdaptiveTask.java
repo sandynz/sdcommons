@@ -14,16 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.sdcommons.concurrent.multiplex;
-
-import java.util.concurrent.Callable;
+package org.sandynz.sdcommons.concurrent.adaptive;
 
 /**
- * Multiplex {@link Callable}.
+ * Task that could be submitted to {@link AdaptiveExecutorService}.
  *
- * @param <V> result type of method {@code call}
  * @author sandynz
  */
-public interface MultiplexCallable<V> extends Callable<V>, CategorizableTask {
+public interface AdaptiveTask {
+
+    /**
+     * @return {@link AdaptiveTaskCfg}. Could NOT be null.
+     */
+    AdaptiveTaskCfg getAdaptiveTaskCfg();
 
 }

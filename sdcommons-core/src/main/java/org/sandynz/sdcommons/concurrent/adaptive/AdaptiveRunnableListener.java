@@ -14,23 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.sdcommons.concurrent.multiplex;
+package org.sandynz.sdcommons.concurrent.adaptive;
 
 /**
- * {@linkplain MultiplexRunnable} listener.
+ * {@linkplain AdaptiveRunnable} listener.
  *
  * @author sandynz
  */
-public interface MultiplexRunnableListener {
+public interface AdaptiveRunnableListener {
 
     /**
      * Invoked at the beginning of {@code runnable}.
      *
      * @param thread   the thread that will run task {@code runnable}
      * @param runnable the task that will be executed
-     * @return attachment which will be a parameter of {@linkplain #afterExecute(MultiplexRunnable, Throwable, Object)}
+     * @return attachment which will be a parameter of {@linkplain #afterExecute(AdaptiveRunnable, Throwable, Object)}
      */
-    default Object beforeExecute(Thread thread, MultiplexRunnable runnable) {
+    default Object beforeExecute(Thread thread, AdaptiveRunnable runnable) {
         return null;
     }
 
@@ -39,9 +39,9 @@ public interface MultiplexRunnableListener {
      *
      * @param runnable                task
      * @param throwable               caught exception from {@link Runnable#run()}, may be null
-     * @param beforeExecuteAttachment attachment from {@linkplain #beforeExecute(Thread, MultiplexRunnable)}. May be exception caught from {@code beforeExecute}.
+     * @param beforeExecuteAttachment attachment from {@linkplain #beforeExecute(Thread, AdaptiveRunnable)}. May be exception caught from {@code beforeExecute}.
      */
-    default void afterExecute(MultiplexRunnable runnable, Throwable throwable, Object beforeExecuteAttachment) {
+    default void afterExecute(AdaptiveRunnable runnable, Throwable throwable, Object beforeExecuteAttachment) {
     }
 
 }

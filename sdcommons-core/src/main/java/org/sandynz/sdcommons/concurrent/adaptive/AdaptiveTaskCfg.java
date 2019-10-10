@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.sdcommons.concurrent.multiplex;
+package org.sandynz.sdcommons.concurrent.adaptive;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -26,14 +26,14 @@ import lombok.experimental.Accessors;
 import org.sandynz.sdcommons.validation.Validations;
 
 /**
- * {@link CategorizableTask} configuration.
+ * {@link AdaptiveTask} configuration.
  *
  * @author sandynz
  */
 @Data
 @Accessors(chain = true)
 @ToString
-public class CategorizableTaskCfg {
+public class AdaptiveTaskCfg {
 
     public static final int PRIORITY_MIN = 1;
     public static final int PRIORITY_MAX = 10;
@@ -53,8 +53,8 @@ public class CategorizableTaskCfg {
         @Min(1)
         private Long upstreamTimeoutMillis;
 
-        public CategorizableTaskCfg build() {
-            return new CategorizableTaskCfg(this);
+        public AdaptiveTaskCfg build() {
+            return new AdaptiveTaskCfg(this);
         }
     }
 
@@ -78,7 +78,7 @@ public class CategorizableTaskCfg {
      */
     private final long upstreamTimeoutMillis;
 
-    private CategorizableTaskCfg(Builder builder) {
+    private AdaptiveTaskCfg(Builder builder) {
         boolean validateRet = Validations.validateBean(builder);
         if (!validateRet) {
             throw new IllegalArgumentException("invalid settings");

@@ -14,18 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.sdcommons.concurrent.multiplex;
+package org.sandynz.sdcommons.concurrent.adaptive.internal;
+
+import java.util.concurrent.RunnableFuture;
+import org.sandynz.sdcommons.concurrent.adaptive.AdaptiveRunnable;
 
 /**
- * Task that could be categorized.
+ * Adaptive {@linkplain RunnableFuture}.
  *
+ * @param <V> result type returned by this {@code get} methods
  * @author sandynz
  */
-public interface CategorizableTask {
-
-    /**
-     * @return {@link CategorizableTaskCfg}. Could NOT be null.
-     */
-    CategorizableTaskCfg getCategorizableTaskCfg();
+public interface AdaptiveRunnableFuture<V> extends RunnableFuture<V>, AdaptiveRunnable {
 
 }

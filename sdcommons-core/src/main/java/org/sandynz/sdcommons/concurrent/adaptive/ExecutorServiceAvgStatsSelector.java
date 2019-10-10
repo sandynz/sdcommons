@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.sdcommons.concurrent.multiplex;
+package org.sandynz.sdcommons.concurrent.adaptive;
 
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,7 +27,7 @@ import org.sandynz.sdcommons.base.statistic.LeapArrayCfg;
 import org.sandynz.sdcommons.base.statistic.LeapArrayListener;
 import org.sandynz.sdcommons.base.util.MultipleResourcesInitializer;
 import org.sandynz.sdcommons.concurrent.ExecutorConstructionCfg;
-import org.sandynz.sdcommons.concurrent.multiplex.internal.TaskCallAvgStatsLeapArray;
+import org.sandynz.sdcommons.concurrent.adaptive.internal.TaskCallAvgStatsLeapArray;
 
 /**
  * {@link ExecutorServiceSelector} implementation which make decision on average stats result.
@@ -78,16 +78,16 @@ public class ExecutorServiceAvgStatsSelector implements ExecutorServiceSelector 
     }
 
     @Override
-    public Object beforeExecute(Thread thread, MultiplexRunnable runnable) {
+    public Object beforeExecute(Thread thread, AdaptiveRunnable runnable) {
         return System.currentTimeMillis();
     }
 
     @Override
-    public void afterExecute(MultiplexRunnable runnable, Throwable throwable, Object beforeExecuteAttachment) {
+    public void afterExecute(AdaptiveRunnable runnable, Throwable throwable, Object beforeExecuteAttachment) {
         Long t1 = (Long) beforeExecuteAttachment;
         long timeMillis = System.currentTimeMillis();
         long rt = timeMillis - t1;
-        String taskCategory = runnable.getCategorizableTaskCfg().getTaskCategory();
+        String taskCategory = runnable.getAdaptiveTaskCfg().getTaskCategory();
         TaskCallAvgStatsLeapArray leapArray = getLeapArray(taskCategory);
         leapArray.currentWindow(timeMillis).value().addAll(rt);
     }
@@ -115,10 +115,10 @@ public class ExecutorServiceAvgStatsSelector implements ExecutorServiceSelector 
     }
 
     @Override
-    public ExecutorService select(MultiplexRunnable runnable) {
-        CategorizableTaskCfg categorizableTaskCfg = runnable.getCategorizableTaskCfg();
-        String taskCategory = categorizableTaskCfg.getTaskCategory();
-        int taskPriority = categorizableTaskCfg.getTaskPriority();
+    public ExecutorService select(AdaptiveRunnable runnable) {
+        AdaptiveTaskCfg taskCfg = runnable.getAdaptiveTaskCfg();
+        String taskCategory = taskCfg.getTaskCategory();
+        int taskPriority = taskCfg.getTaskPriority();
         TaskCallAvgStatsLeapArray.StatsResult statsResult = this.taskCategoryStatsResultMap.get(taskCategory);
         return null;//TODO
     }

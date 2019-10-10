@@ -14,13 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.sdcommons.concurrent.multiplex;
+package org.sandynz.sdcommons.concurrent.adaptive;
+
+import java.util.concurrent.Callable;
 
 /**
- * Multiplex {@link Runnable}.
+ * Adaptive {@link Callable}.
  *
+ * @param <V> result type of method {@code call}
  * @author sandynz
  */
-public interface MultiplexRunnable extends Runnable, CategorizableTask {
+public interface AdaptiveCallable<V> extends Callable<V>, AdaptiveTask {
 
 }

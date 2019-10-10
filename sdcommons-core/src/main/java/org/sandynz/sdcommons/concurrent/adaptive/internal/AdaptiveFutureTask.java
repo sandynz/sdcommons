@@ -14,36 +14,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.sdcommons.concurrent.multiplex.internal;
+package org.sandynz.sdcommons.concurrent.adaptive.internal;
 
 import java.util.concurrent.FutureTask;
-import org.sandynz.sdcommons.concurrent.multiplex.CategorizableTask;
-import org.sandynz.sdcommons.concurrent.multiplex.CategorizableTaskCfg;
-import org.sandynz.sdcommons.concurrent.multiplex.MultiplexCallable;
-import org.sandynz.sdcommons.concurrent.multiplex.MultiplexRunnable;
+import org.sandynz.sdcommons.concurrent.adaptive.AdaptiveCallable;
+import org.sandynz.sdcommons.concurrent.adaptive.AdaptiveRunnable;
+import org.sandynz.sdcommons.concurrent.adaptive.AdaptiveTask;
+import org.sandynz.sdcommons.concurrent.adaptive.AdaptiveTaskCfg;
 
 /**
- * Multiplex {@linkplain FutureTask}.
+ * Adaptive {@linkplain FutureTask}.
  *
  * @param <V> result type returned by this {@code get} methods
  * @author sandynz
  */
-public class MultiplexFutureTask<V> extends FutureTask<V> implements MultiplexRunnableFuture<V> {
+public class AdaptiveFutureTask<V> extends FutureTask<V> implements AdaptiveRunnableFuture<V> {
 
-    private final CategorizableTask taskCategorizable;
+    private final AdaptiveTask adaptiveTask;
 
-    public MultiplexFutureTask(MultiplexCallable<V> callable) {
+    public AdaptiveFutureTask(AdaptiveCallable<V> callable) {
         super(callable);
-        this.taskCategorizable = callable;
+        this.adaptiveTask = callable;
     }
 
-    public MultiplexFutureTask(MultiplexRunnable runnable, V result) {
+    public AdaptiveFutureTask(AdaptiveRunnable runnable, V result) {
         super(runnable, result);
-        this.taskCategorizable = runnable;
+        this.adaptiveTask = runnable;
     }
 
     @Override
-    public CategorizableTaskCfg getCategorizableTaskCfg() {
-        return taskCategorizable.getCategorizableTaskCfg();
+    public AdaptiveTaskCfg getAdaptiveTaskCfg() {
+        return adaptiveTask.getAdaptiveTaskCfg();
     }
 }

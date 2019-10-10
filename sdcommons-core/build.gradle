@@ -49,14 +49,10 @@ dependencies {
     compile group: 'joda-time', name: 'joda-time', version: '2.10.4'
 
     // validation
-    compileOnly "javax.el:javax.el-api:${elApiVersion}"
-    compileOnly "org.glassfish:javax.el:${javaxElVersion}"
-    compileOnly "javax.validation:validation-api:${validationApiVersion}"
-    compileOnly "org.hibernate:hibernate-validator:${hibernateValidatorVersion}"
-    testCompile "javax.el:javax.el-api:${elApiVersion}"
-    testCompile "org.glassfish:javax.el:${javaxElVersion}"
-    testCompile "javax.validation:validation-api:${validationApiVersion}"
-    testCompile "org.hibernate:hibernate-validator:${hibernateValidatorVersion}"
+    compile "javax.el:javax.el-api:${elApiVersion}"
+    compile "org.glassfish:javax.el:${javaxElVersion}"
+    compile "javax.validation:validation-api:${validationApiVersion}"
+    compile "org.hibernate:hibernate-validator:${hibernateValidatorVersion}"
 
 }
 

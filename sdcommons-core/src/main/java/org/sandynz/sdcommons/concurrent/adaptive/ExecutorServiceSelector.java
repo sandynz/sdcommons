@@ -14,19 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.sdcommons.concurrent.multiplex;
+package org.sandynz.sdcommons.concurrent.adaptive;
 
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 
 /**
- * {@link ExecutorService} selector, designed for {@link MultiplexExecutorService}.
+ * {@link ExecutorService} selector, designed for {@link AdaptiveExecutorService}.
  *
  * @author sandynz
  */
-public interface ExecutorServiceSelector extends Iterable<ExecutorService>, MultiplexRunnableListener {
+public interface ExecutorServiceSelector extends Iterable<ExecutorService>, AdaptiveRunnableListener {
 
-    ExecutorService select(MultiplexRunnable runnable);
+    ExecutorService select(AdaptiveRunnable runnable);
 
     @Override
     Iterator<ExecutorService> iterator();
