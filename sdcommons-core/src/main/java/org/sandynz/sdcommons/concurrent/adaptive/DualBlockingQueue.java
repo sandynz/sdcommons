@@ -64,45 +64,39 @@ public class DualBlockingQueue<E> implements BlockingQueue<E> {
 
     @Override
     public void put(E e) throws InterruptedException {
-        boolean b = baseQueue.offer(e);
-        if (!b) {
-            spareQueue.put(e);
-        }
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException {
-        long t1 = timeout / 2;
-        if (t1 == 0) {
-            t1 = timeout;
-        }
-        boolean b = baseQueue.offer(e, t1, unit);
-        if (b) {
-            return true;
-        }
-        long t2 = timeout - t1;
-        return spareQueue.offer(e, t2, unit);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public E take() throws InterruptedException {
+        //boolean timed = allowCoreThreadTimeOut || wc > corePoolSize;
+        //Runnable r = timed ? workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS) : workQueue.take();
         // just take from baseQueue, for pool core threads
         return baseQueue.take();
     }
 
     @Override
     public E poll(long timeout, TimeUnit unit) throws InterruptedException {
-        long t1 = timeout / 2;
-        if (t1 == 0) {
-            t1 = timeout;
+        //Runnable r = timed ? workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS) : workQueue.take();
+        long leftInNano = unit.toNanos(timeout);
+        long sliceInNano = TimeUnit.MILLISECONDS.toNanos(5);
+        if (leftInNano < sliceInNano) {
+            sliceInNano = leftInNano / 2;
         }
-        E e = baseQueue.poll(t1, unit);
-        if (e != null) {
-            return e;
+        for (int round = 1; leftInNano > 0; ++round) {
+            BlockingQueue<E> queue = (round & 1) == 1 ? baseQueue : spareQueue;
+            E e = queue.poll(Math.min(sliceInNano, leftInNano), TimeUnit.NANOSECONDS);
+            if (e != null) {
+                return e;
+            }
+            leftInNano -= sliceInNano;
         }
-        long t2 = timeout - t1;
-        e = spareQueue.poll(t2, unit);
-        return e != null ? e : baseQueue.poll();
+        return null;
     }
 
     @Override
