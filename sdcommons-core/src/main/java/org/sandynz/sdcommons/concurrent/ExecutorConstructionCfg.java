@@ -50,7 +50,7 @@ public class ExecutorConstructionCfg {
         private long keepAliveTime = 60L;
         @NotNull
         private TimeUnit unit = TimeUnit.SECONDS;
-        @NotNull
+        //@NotNull nullable
         private BlockingQueue<Runnable> workQueue;
 
         private ThreadFactory threadFactory;
@@ -100,11 +100,7 @@ public class ExecutorConstructionCfg {
         } else {
             this.handler = new ExtendedThreadPoolExecutor.AbortPolicy();
         }
-        if (builder.addWorkerStrategy != null) {
-            this.addWorkerStrategy = builder.addWorkerStrategy;
-        } else {
-            this.addWorkerStrategy = new ExecutorAddWorkerOriginalStrategy();
-        }
+        this.addWorkerStrategy = builder.addWorkerStrategy;
     }
 
     public Builder toBuilder() {

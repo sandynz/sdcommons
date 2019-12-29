@@ -47,14 +47,23 @@ public class ExtendedThreadPoolExecutor extends ThreadPoolExecutor {
 
     private ExecutorAddWorkerStrategy addWorkerStrategy;
 
+    public ExecutorAddWorkerStrategy getAddWorkerStrategy() {
+        return addWorkerStrategy;
+    }
+
     public ExtendedThreadPoolExecutor setAddWorkerStrategy(ExecutorAddWorkerStrategy addWorkerStrategy) {
+        if (this.addWorkerStrategy != null) {
+            throw new IllegalStateException("addWorkerStrategy already set");
+        }
         this.addWorkerStrategy = addWorkerStrategy;
         return this;
     }
 
     public ExtendedThreadPoolExecutor(ExecutorConstructionCfg cfg) {
         super(cfg.getCorePoolSize(), cfg.getMaxPoolSize(), cfg.getKeepAliveTime(), cfg.getUnit(), cfg.getWorkQueue(), cfg.getThreadFactory(), cfg.getHandler());
-        this.setAddWorkerStrategy(cfg.getAddWorkerStrategy());
+        if (cfg.getAddWorkerStrategy() != null) {
+            this.setAddWorkerStrategy(cfg.getAddWorkerStrategy());
+        }
     }
 
     /**

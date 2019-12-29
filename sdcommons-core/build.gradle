@@ -43,7 +43,8 @@ dependencies {
     testCompile group: 'com.alibaba', name: 'fastjson', version: '1.2.60'
 
     compile group: 'org.slf4j', name: 'slf4j-api', version: "${slf4jVersion}"
-    testCompile group: 'org.slf4j', name: 'slf4j-simple', version: "${slf4jVersion}"
+    //testCompile group: 'org.slf4j', name: 'slf4j-simple', version: "${slf4jVersion}"
+    testCompile group: 'ch.qos.logback', name: 'logback-classic', version: "1.2.3"
 
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
     compile group: 'joda-time', name: 'joda-time', version: '2.10.4'

@@ -30,9 +30,6 @@ import java.util.function.Predicate;
  * <p>
  * In general, {@code baseQueue} should be owned my a dedicated thread pool,
  * {@code spareQueue} should be shared by several thread pools.
- * <p>
- * Example:
- * TODO
  *
  * @author sandynz
  */
@@ -97,6 +94,7 @@ public class AdaptiveDualBlockingQueue implements BlockingQueue<Runnable> {
             sliceInNano = leftInNano / 2;
         }
         for (int round = 1; leftInNano > 0; ++round) {
+            //- prefer baseQueue
             BlockingQueue<Runnable> queue = (round & 1) == 1 ? baseQueue : spareQueue;
             Runnable e = queue.poll(Math.min(sliceInNano, leftInNano), TimeUnit.NANOSECONDS);
             if (e != null) {
@@ -144,8 +142,8 @@ public class AdaptiveDualBlockingQueue implements BlockingQueue<Runnable> {
 
     @Override
     public Runnable poll() {
-        Runnable e = baseQueue.poll();
-        return e != null ? e : spareQueue.poll();
+        Runnable e = spareQueue.poll();
+        return e != null ? e : baseQueue.poll();
     }
 
     @Override
