@@ -22,6 +22,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * {@linkplain ThreadPoolExecutor} extension.
+ * <p>
+ * {@link ExecutorAddWorkerStrategy} abstraction added.
  *
  * @author sandynz
  */
@@ -48,6 +50,11 @@ public class ExtendedThreadPoolExecutor extends ThreadPoolExecutor {
     public ExtendedThreadPoolExecutor setAddWorkerStrategy(ExecutorAddWorkerStrategy addWorkerStrategy) {
         this.addWorkerStrategy = addWorkerStrategy;
         return this;
+    }
+
+    public ExtendedThreadPoolExecutor(ExecutorConstructionCfg cfg) {
+        super(cfg.getCorePoolSize(), cfg.getMaxPoolSize(), cfg.getKeepAliveTime(), cfg.getUnit(), cfg.getWorkQueue(), cfg.getThreadFactory(), cfg.getHandler());
+        this.setAddWorkerStrategy(cfg.getAddWorkerStrategy());
     }
 
     /**

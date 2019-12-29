@@ -16,19 +16,19 @@
  */
 package org.sandynz.sdcommons.concurrent.adaptive;
 
-import java.util.Iterator;
-import java.util.concurrent.ExecutorService;
+import org.sandynz.sdcommons.concurrent.RunnableListener;
 
 /**
- * {@link ExecutorService} selector, designed for {@link AdaptiveExecutorService}.
+ * TODO
  *
  * @author sandynz
  */
-public interface ExecutorServiceSelector extends Iterable<ExecutorService>, AdaptiveRunnableListener {
+public interface AdaptiveExecutorStats extends RunnableListener {
 
-    ExecutorService select(AdaptiveRunnable runnable);
+    //TODO
 
-    @Override
-    Iterator<ExecutorService> iterator();
+    int calculateSuitableQueueSize(AdaptiveRunnable adaptiveRunnable);
+
+    boolean couldCommit(AdaptiveRunnable adaptiveRunnable);
 
 }

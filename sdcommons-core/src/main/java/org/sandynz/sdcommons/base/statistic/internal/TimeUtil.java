@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.sdcommons.base.statistic.util;
+package org.sandynz.sdcommons.base.statistic.internal;
 
 // From com.alibaba.csp.sentinel.util.TimeUtil.java
 
@@ -44,7 +44,7 @@ public final class TimeUtil {
             }
         });
         daemon.setDaemon(true);
-        daemon.setName("sentinel-time-tick-thread");
+        daemon.setName("time-tick-thread");
         daemon.start();
     }
 

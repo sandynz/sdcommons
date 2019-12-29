@@ -19,7 +19,6 @@ package org.sandynz.sdcommons.concurrent.adaptive;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -35,10 +34,6 @@ import org.sandynz.sdcommons.validation.Validations;
 @ToString
 public class AdaptiveTaskCfg {
 
-    public static final int PRIORITY_MIN = 1;
-    public static final int PRIORITY_MAX = 10;
-    public static final int PRIORITY_MID = 5;
-
     @Data
     @Accessors(chain = true)
     @ToString
@@ -46,9 +41,6 @@ public class AdaptiveTaskCfg {
 
         @NotBlank
         private String taskCategory;
-        @NotNull
-        @Size(min = PRIORITY_MID, max = PRIORITY_MAX)
-        private Integer taskPriority;
         @NotNull
         @Min(1)
         private Long upstreamTimeoutMillis;
@@ -68,13 +60,9 @@ public class AdaptiveTaskCfg {
      */
     private final String taskCategory;
     /**
-     * Task priority.
-     * Range: [1,10]. The greater the higher.
-     */
-    private final int taskPriority;
-    /**
      * Upstream (e.g. gateway, micro-service invoker) timeout in millis.
      * Example values: 3000, 8000.
+     * It might be divided by 2 from actual timeout, since there is load balance and retry.
      */
     private final long upstreamTimeoutMillis;
 
@@ -85,7 +73,6 @@ public class AdaptiveTaskCfg {
         }
 
         this.taskCategory = builder.taskCategory;
-        this.taskPriority = builder.taskPriority;
         this.upstreamTimeoutMillis = builder.upstreamTimeoutMillis;
     }
 

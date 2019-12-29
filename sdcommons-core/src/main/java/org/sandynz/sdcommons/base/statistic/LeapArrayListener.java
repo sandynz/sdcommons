@@ -27,6 +27,6 @@ public interface LeapArrayListener<Id> {
     /**
      * @param identifier {@linkplain LeapArray}'s identifier
      */
-    void bucketDeprecatedAndBeforeReset(Id identifier);
+    void bucketDeprecatedBeforeReset(Id identifier);
 
 }

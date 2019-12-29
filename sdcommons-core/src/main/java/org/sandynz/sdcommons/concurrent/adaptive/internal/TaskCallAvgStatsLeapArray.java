@@ -30,6 +30,11 @@ import org.sandynz.sdcommons.base.statistic.WindowWrap;
 public class TaskCallAvgStatsLeapArray extends LeapArray<TaskCallAvgStatsEntry, String> {
 
     /**
+     * latest valid {@code StatsResult}, means {@code totalCount} greater than 0.
+     */
+    private volatile StatsResult latestValidStatsResult;
+
+    /**
      * The total bucket count is: {@code sampleCount = intervalInMs / windowLengthInMs}.
      *
      * @param sampleCount  bucket count of the sliding window
@@ -56,10 +61,18 @@ public class TaskCallAvgStatsLeapArray extends LeapArray<TaskCallAvgStatsEntry, 
     @ToString
     public static class StatsResult {
 
+        private int totalCount;
         private double tps;
         private double avgRtMillis;
     }
 
+    /**
+     * Calculate current {@code StatsResult}.
+     * If {@code totalCount} greater than 0, then return current result.
+     * If {@code totalCount} is 0 and {@link #latestValidStatsResult} is not null, then return {@link #latestValidStatsResult}, else return null.
+     *
+     * @return {@link StatsResult} or null
+     */
     public StatsResult calculateStatsResult() {
         long totalTimeMillis = 0;
         int totalCount = 0;
@@ -74,11 +87,16 @@ public class TaskCallAvgStatsLeapArray extends LeapArray<TaskCallAvgStatsEntry, 
             totalCount += snapshot.getCount();
             totalRt += snapshot.getRtSum();
         }
+        if (totalCount == 0) {
+            return this.latestValidStatsResult;
+        }
         StatsResult result = new StatsResult();
+        result.setTotalCount(totalCount);
         double tps = totalCount * 1.0D / totalTimeMillis * 1000;
         result.setTps(tps);
         double avgRtMillis = totalRt * 1.0D / totalCount;
         result.setAvgRtMillis(avgRtMillis);
+        this.latestValidStatsResult = result;
         return result;
     }
 

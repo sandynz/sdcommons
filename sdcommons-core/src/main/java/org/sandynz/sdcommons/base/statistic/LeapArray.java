@@ -25,8 +25,8 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.extern.slf4j.Slf4j;
 import org.sandynz.sdcommons.base.lang.Identifiable;
-import org.sandynz.sdcommons.base.statistic.util.AssertUtil;
-import org.sandynz.sdcommons.base.statistic.util.TimeUtil;
+import org.sandynz.sdcommons.base.statistic.internal.AssertUtil;
+import org.sandynz.sdcommons.base.statistic.internal.TimeUtil;
 
 /**
  * <p>
@@ -218,7 +218,7 @@ public abstract class LeapArray<T, Id> implements Identifiable<Id> {
                     try {
                         for (LeapArrayListener<Id> listener : this.listenerSet) {
                             try {
-                                listener.bucketDeprecatedAndBeforeReset(this.identifier);
+                                listener.bucketDeprecatedBeforeReset(this.identifier);
                             } catch (Throwable throwable) {
                                 log.error("bucketDeprecatedAndBeforeReset ex caught", throwable);
                                 // ignore

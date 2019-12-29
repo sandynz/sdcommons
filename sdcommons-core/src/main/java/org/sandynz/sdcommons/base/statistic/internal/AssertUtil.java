@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.sdcommons.base.statistic.util;
+package org.sandynz.sdcommons.base.statistic.internal;
 
 // From com.alibaba.csp.sentinel.util.AssertUtil.java
 
