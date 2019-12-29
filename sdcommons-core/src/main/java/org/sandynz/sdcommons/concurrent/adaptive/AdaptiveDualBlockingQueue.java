@@ -24,25 +24,32 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 /**
- * Dual {@link BlockingQueue}, include a base queue and a spare queue.
- * It's designed for adaptive executor.
+ * Adaptive dual {@link BlockingQueue}, include a base queue and a spare queue.
+ * <p>
+ * It's designed for adaptive executor, not for general usage.
+ * <p>
+ * In general, {@code baseQueue} should be owned my a dedicated thread pool,
+ * {@code spareQueue} should be shared by several thread pools.
+ * <p>
+ * Example:
+ * TODO
  *
  * @author sandynz
  */
-public class DualBlockingQueue<E> implements BlockingQueue<E> {
+public class AdaptiveDualBlockingQueue implements BlockingQueue<Runnable> {
 
     /**
      * Underlying base queue.
      */
-    private final BlockingQueue<E> baseQueue;
+    private final BlockingQueue<Runnable> baseQueue;
 
     /**
      * Underlying spare queue.
      * Element will be added to this queue when {@code baseQueue} is full.
      */
-    private final BlockingQueue<E> spareQueue;
+    private final BlockingQueue<Runnable> spareQueue;
 
-    public DualBlockingQueue(BlockingQueue<E> baseQueue, BlockingQueue<E> spareQueue) {
+    public AdaptiveDualBlockingQueue(BlockingQueue<Runnable> baseQueue, BlockingQueue<Runnable> spareQueue) {
         if (baseQueue == null || spareQueue == null) {
             throw new NullPointerException("any queue null");
         }
@@ -51,29 +58,29 @@ public class DualBlockingQueue<E> implements BlockingQueue<E> {
     }
 
     @Override
-    public boolean add(E e) {
+    public boolean add(Runnable e) {
         boolean b = baseQueue.add(e);
         return b || spareQueue.add(e);
     }
 
     @Override
-    public boolean offer(E e) {
+    public boolean offer(Runnable e) {
         boolean b = baseQueue.offer(e);
         return b || spareQueue.offer(e);
     }
 
     @Override
-    public void put(E e) throws InterruptedException {
+    public void put(Runnable e) throws InterruptedException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException {
+    public boolean offer(Runnable e, long timeout, TimeUnit unit) throws InterruptedException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public E take() throws InterruptedException {
+    public Runnable take() throws InterruptedException {
         //boolean timed = allowCoreThreadTimeOut || wc > corePoolSize;
         //Runnable r = timed ? workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS) : workQueue.take();
         // just take from baseQueue, for pool core threads
@@ -81,7 +88,8 @@ public class DualBlockingQueue<E> implements BlockingQueue<E> {
     }
 
     @Override
-    public E poll(long timeout, TimeUnit unit) throws InterruptedException {
+    public Runnable poll(long timeout, TimeUnit unit) throws InterruptedException {
+        //boolean timed = allowCoreThreadTimeOut || wc > corePoolSize;
         //Runnable r = timed ? workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS) : workQueue.take();
         long leftInNano = unit.toNanos(timeout);
         long sliceInNano = TimeUnit.MILLISECONDS.toNanos(5);
@@ -89,8 +97,8 @@ public class DualBlockingQueue<E> implements BlockingQueue<E> {
             sliceInNano = leftInNano / 2;
         }
         for (int round = 1; leftInNano > 0; ++round) {
-            BlockingQueue<E> queue = (round & 1) == 1 ? baseQueue : spareQueue;
-            E e = queue.poll(Math.min(sliceInNano, leftInNano), TimeUnit.NANOSECONDS);
+            BlockingQueue<Runnable> queue = (round & 1) == 1 ? baseQueue : spareQueue;
+            Runnable e = queue.poll(Math.min(sliceInNano, leftInNano), TimeUnit.NANOSECONDS);
             if (e != null) {
                 return e;
             }
@@ -115,18 +123,18 @@ public class DualBlockingQueue<E> implements BlockingQueue<E> {
     }
 
     @Override
-    public int drainTo(Collection<? super E> c) {
+    public int drainTo(Collection<? super Runnable> c) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public int drainTo(Collection<? super E> c, int maxElements) {
+    public int drainTo(Collection<? super Runnable> c, int maxElements) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public E remove() {
-        E e = this.poll();
+    public Runnable remove() {
+        Runnable e = this.poll();
         if (e != null) {
             return e;
         } else {
@@ -135,14 +143,14 @@ public class DualBlockingQueue<E> implements BlockingQueue<E> {
     }
 
     @Override
-    public E poll() {
-        E e = baseQueue.poll();
+    public Runnable poll() {
+        Runnable e = baseQueue.poll();
         return e != null ? e : spareQueue.poll();
     }
 
     @Override
-    public E element() {
-        E e = this.peek();
+    public Runnable element() {
+        Runnable e = this.peek();
         if (e != null) {
             return e;
         } else {
@@ -151,8 +159,8 @@ public class DualBlockingQueue<E> implements BlockingQueue<E> {
     }
 
     @Override
-    public E peek() {
-        E e = baseQueue.peek();
+    public Runnable peek() {
+        Runnable e = baseQueue.peek();
         return e != null ? e : spareQueue.peek();
     }
 
@@ -167,7 +175,7 @@ public class DualBlockingQueue<E> implements BlockingQueue<E> {
     }
 
     @Override
-    public Iterator<E> iterator() {
+    public Iterator<Runnable> iterator() {
         throw new UnsupportedOperationException();
     }
 
@@ -187,7 +195,7 @@ public class DualBlockingQueue<E> implements BlockingQueue<E> {
     }
 
     @Override
-    public boolean addAll(Collection<? extends E> c) {
+    public boolean addAll(Collection<? extends Runnable> c) {
         throw new UnsupportedOperationException();
     }
 
@@ -197,7 +205,7 @@ public class DualBlockingQueue<E> implements BlockingQueue<E> {
     }
 
     @Override
-    public boolean removeIf(Predicate<? super E> filter) {
+    public boolean removeIf(Predicate<? super Runnable> filter) {
         throw new UnsupportedOperationException();
     }
 
