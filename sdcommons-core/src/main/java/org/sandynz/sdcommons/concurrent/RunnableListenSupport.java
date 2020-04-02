@@ -24,14 +24,18 @@ import lombok.extern.slf4j.Slf4j;
  * @author sandynz
  */
 @Slf4j
-public class ListenableTask implements Runnable {
+public class RunnableListenSupport implements Runnable {
 
     private final Runnable runnable;
     private final RunnableListener[] runnableListeners;
 
-    public ListenableTask(Runnable runnable, RunnableListener... runnableListeners) {
+    public RunnableListenSupport(Runnable runnable, RunnableListener... runnableListeners) {
         this.runnable = runnable;
         this.runnableListeners = runnableListeners;
+    }
+
+    public Runnable getRunnable() {
+        return runnable;
     }
 
     @Override
@@ -39,10 +43,11 @@ public class ListenableTask implements Runnable {
         RunnableListener[] runnableListeners = this.runnableListeners;
         Object[] attachments = new Object[runnableListeners.length];
         int index = 0;
+        final Thread currentThread = Thread.currentThread();
         for (RunnableListener listener : runnableListeners) {
             Object beforeRet;
             try {
-                beforeRet = listener.beforeExecute(Thread.currentThread(), this.runnable);
+                beforeRet = listener.beforeExecute(currentThread, this.runnable);
             } catch (Throwable throwable) {
                 beforeRet = throwable;
             }
