@@ -21,4 +21,8 @@
         <!--<appender-ref ref="fileLog"/>-->
     </root>
 
+<!--
+    <logger name="org.sandynz" level="DEBUG"/>
+-->
+
 </configuration>

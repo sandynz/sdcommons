@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sandynz.sdcommons.concurrent.adaptive;
+package org.sandynz.sdcommons.concurrent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,16 +25,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.sandynz.sdcommons.concurrent.ExecutorConstructionCfg;
-import org.sandynz.sdcommons.concurrent.ThreadFactoryImpl;
 
 /**
- * {@linkplain AdaptiveExecutor} test cases.
+ * {@linkplain DualExecutor} test cases.
  *
  * @author sandynz
  */
 @Slf4j
-public class AdaptiveExecutorTest {
+public class DualExecutorTest {
 
     @Test
     public void test1() {
@@ -43,13 +41,26 @@ public class AdaptiveExecutorTest {
                 .setKeepAliveTime(60).setUnit(TimeUnit.SECONDS)
                 .build();
         final BlockingQueue<Runnable> spareQueue = new LinkedBlockingQueue<>(100);
+        final ThreadPoolExecutor spareExecutor = new ExtendedThreadPoolExecutor(executorConstructionCfg.toBuilder()
+                .setThreadFactory(new ThreadFactoryImpl("spare-"))
+                .setWorkQueue(spareQueue)
+                .setMaxPoolSize(10)
+                .setAddWorkerStrategy(new ExecutorAddWorkerEagerStrategy())
+                .build());
+        int taskCount = 0;
         List<Future<?>> futureList = new ArrayList<>();
-        for (int i = 1; i < 4; i++) {
-            AdaptiveDualBlockingQueue dualBlockingQueue = new AdaptiveDualBlockingQueue(new LinkedBlockingQueue<>(1), spareQueue);
-            AdaptiveExecutor executor = new AdaptiveExecutor(executorConstructionCfg.toBuilder().setThreadFactory(new ThreadFactoryImpl("pool-" + i + "-")).build(), dualBlockingQueue);
-            for (int j = 1; j < 20; j++) {
+        for (int i = 1; i <= 4; i++) {
+            ThreadPoolExecutor baseExecutor = new ExtendedThreadPoolExecutor(executorConstructionCfg.toBuilder()
+                    .setThreadFactory(new ThreadFactoryImpl("pool-" + i + "-"))
+                    .setWorkQueue(new LinkedBlockingQueue<>(10))
+                    .setAddWorkerStrategy(new ExecutorAddWorkerEagerStrategy())
+                    .setHandler(new LightweightAbortPolicy())
+                    .build());
+            DualExecutor executor = new DualExecutor(baseExecutor, spareExecutor);
+            for (int j = 1; j <= 20; j++) {
                 int finalI = i;
                 int finalJ = j;
+                taskCount++;
                 Future<?> future = executor.submit(() -> {
                     log.info("i={}, j={}, spareQueue.size={}", finalI, finalJ, spareQueue.size());
                     try {
@@ -61,7 +72,7 @@ public class AdaptiveExecutorTest {
                 futureList.add(future);
             }
         }
-        log.info("futureList.size={}", futureList.size());
+        log.info("taskCount={}, futureList.size={}", taskCount, futureList.size());
         for (Future<?> future : futureList) {
             try {
                 future.get();
